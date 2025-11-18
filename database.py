@@ -1,9 +1,14 @@
 import sqlite3
 
 def initialize_database():
-    conn = sqlite3.connect('restauracja.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+    #initializing the database
+    try:
+        conn = sqlite3.connect('restauracja.db')
+        conn.row_factory = sqlite3.Row
+        return conn
+    #handling exceptions
+    except sqlite3.OperationalError:
+        print('Nie można otworzyć pliku bazy danych. Sprawdź uprawnienia dostępu.\nZamykanie programu.')
 
 def create_table():
     #connecting to the database
@@ -58,7 +63,8 @@ def create_table():
             FOREIGN KEY (userId) REFERENCES USER(id)
         )'''
     cursor.execute(reservation)
-
+    
+    #saving changes and closing the connection
     conn.commit()
     print("Tables created successfully")
     conn.close()
