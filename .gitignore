@@ -1,3 +1,6 @@
 restauracja.db
 __pycache__/
 venv/
+dane.json
+testing.py
+dane2.json
