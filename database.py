@@ -66,6 +66,7 @@ def create_table():
         print("Tables created successfully")
         conn.close()
 
+#user functions
 def add_user(first_name, last_name, email, phone_number, user_name, password, user_type_id):
 
     #connecting to the database
@@ -115,7 +116,78 @@ def get_user_by_username(user_name):
         user = cursor.fetchone()
         conn.close()
         return user
-        
+
+#reservation functions
+def create_reservation(date, start_time, end_time, number_of_people, user_id):
+
+
+    
+    #connecting to the database
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        #searching for a table with sufficient capacity
+        capacity_search = '''
+            SELECT id FROM RestaurantTable
+            WHERE capacity >= ?
+        '''
+        cursor.execute(capacity_search, (number_of_people,))
+        rows = cursor.fetchall()
+        if not rows:
+            print("No table with sufficient capacity found.")
+            return False
+        else:
+            sufficient_capacity_tables = {row['id'] for row in rows}
+        #searching for taken tables at the specified date and time
+        taken_tables_search = '''
+            SELECT restaurantTableId FROM Reservation
+            WHERE date = ? AND (startTime < ? OR endTime > ?)
+            '''
+        cursor.execute(taken_tables_search, (date, end_time, start_time))
+        taken_rows = cursor.fetchall()
+        taken_tables = {row['restaurantTableId'] for row in taken_rows}
+        #finding available tables
+        available_tables = list(sufficient_capacity_tables - taken_tables)
+        if not available_tables:
+            print("No available tables found for the specified date and time.")
+            return False
+        #assigning the first available table
+        assigned_table_id = available_tables[0]
+        #inserting the reservation into the Reservation table
+        insert_reservation = '''
+            INSERT INTO Reservation
+            (date, startTime, endTime, numberOfPeople, status, restaurantTableId, userId)
+            VALUES
+            (?,?,?,?,'Awaiting confirmation',?,?)
+        '''
+        cursor.execute(insert_reservation, (
+            date,
+            start_time,
+            end_time,
+            number_of_people,
+            assigned_table_id,
+            user_id
+        ))
+        #saving changes and closing the connection
+        conn.commit()
+        print("Reservation created successfully")
+        conn.close()
+        return True   
+
+def modify_reservation_status(reservation_id, new_status):
+    #connecting to the database
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        #updating the reservation status
+        update_status = '''
+            UPDATE Reservation
+            SET status = ?
+            WHERE id = ?
+        '''
+        cursor.execute(update_status, (new_status, reservation_id))
+        #saving changes and closing the connection
+        conn.commit()
+        print("Reservation status updated successfully")
+        conn.close()
 
 def main():
     create_table()
