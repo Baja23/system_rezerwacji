@@ -1,8 +1,13 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, render_template
 import database as db
+import string
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -20,8 +25,8 @@ def register():
         return jsonify({'error': 'Invalid email format'}), 400
     elif not data['user_name'].isalnum() or len(data['user_name']) < 5:
         return jsonify({'error': 'Username must be alphanumeric and at least 5 characters long'}), 400
-    #elif db.get_user_by_phone_number(data['phone_number']) and db.get_user_by_email(data['email']):
-        #return jsonify({'error': 'Phone number and email already registered'}), 400
+    elif db.get_user_by_phone_number(data['phone_number']) and db.get_user_by_email(data['email']):
+        return jsonify({'error': 'Phone number and email already registered'}), 400
     elif db.get_user_by_username(data['user_name']):
         return jsonify({'error': 'Username already exists'}), 400
     elif len(data['password']) < 10:
@@ -32,7 +37,7 @@ def register():
         return jsonify({'error': 'Password must contain at least one uppercase letter'}), 400
     elif not any(char.islower() for char in data['password']):
         return jsonify({'error': 'Password must contain at least one lowercase letter'}), 400
-    elif not any(char in '!@#$%^&*()_+-=[]{}|;:,.<>?/' for char in data['password']):
+    elif not any(c in string.punctuation for c in data['password']):
         return jsonify({'error': 'Password must contain at least one special character'}), 400
     elif ' ' in data['password']:
         return jsonify({'error': 'Password must not contain spaces'}), 400   
