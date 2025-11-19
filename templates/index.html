@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYZ strona startowa</title>
+</head>
+<body>
+    <div>
+        <button id="registration_form_button">Zarejestruj się</button>
+        <button id="login_button">Zaloguj się</button>
+    </div>
+    <div id="registration_container" style="display:none;">
+        <form id="register_form">
+            <label for="first_name">
+                Imię:
+                <input type="text" id="first_name" placeholder="Imię" required>
+            </label>
+            <label for="last_name">
+                Nazwisko:
+                <input type="text" id="last_name" placeholder="Nazwisko" required>
+            </label>
+            <label for="'email">
+                Email:
+                <input type="email" id="email" placeholder="Email" required>
+            </label>
+            <label for="phone_number">
+                Numer telefonu:
+                <input type="number" id="phone_number" placeholder="Numer telefonu" required>
+            </label>
+            <label for="user_name">
+                Nazwa użytkownika:
+                <input type="text" id="user_name" placeholder="Nazwa użytkownika" required>
+            </label>
+            <label for="password">
+                Hasło:
+                <input type="password" id="password" placeholder="Hasło" required>
+            </label>
+            <label for="confirm_password">
+                Potwierdź hasło:
+                <input type="password" id="confirm_password" placeholder="Potwierdź hasło" required>
+            </label>
+            <label for="user_type">
+                <input type="hidden" id="user_type" value="1">
+            </label>
+
+            <button type="submit" id="register_button">Zarejestruj się</button>
+        </form>
+    </div>
+    <script src="/static/script.js"></script>
+</html>
