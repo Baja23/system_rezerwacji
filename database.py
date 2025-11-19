@@ -54,7 +54,7 @@ def create_table():
                 endTime TEXT NOT NULL,
                 numberOfPeople INTEGER NOT NULL,
                 status TEXT NOT NULL,
-                restaurantTableId INTEGERNOT NULL,
+                restaurantTableId INTEGER NOT NULL,
                 userId INTEGER NOT NULL,
                 FOREIGN KEY (restaurantTableId) REFERENCES RestaurantTable(id),
                 FOREIGN KEY (userId) REFERENCES USER(id)
@@ -64,7 +64,6 @@ def create_table():
         #saving changes and closing the connection
         conn.commit()
         print("Tables created successfully")
-        conn.close()
 
 #user functions
 def add_user(first_name, last_name, email, phone_number, user_name, password, user_type_id):
@@ -123,6 +122,30 @@ def get_user_by_username(user_name):
     cursor.execute(user, (user_name,))
     user = cursor.fetchone()
     conn.close()
+    return user
+
+def get_user_by_email(email):
+    #connecting to the database
+    conn = initialize_database()
+    cursor = conn.cursor()
+    #retrieving user by email
+    user = '''
+        SELECT * FROM User WHERE email = ?
+    '''
+    cursor.execute(user, (email,))
+    user = cursor.fetchone()
+    return user
+
+def get_user_by_phone_number(phone_number):
+    #connecting to the database
+    conn = initialize_database()
+    cursor = conn.cursor()
+    #retrieving user by phone number
+    user = '''
+        SELECT * FROM User WHERE phoneNumber = ?
+    '''
+    cursor.execute(user, (phone_number,))
+    user = cursor.fetchone()
     return user
 
 #reservation functions
