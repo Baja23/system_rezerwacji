@@ -82,7 +82,7 @@ def add_user(first_name, last_name, email, phone_number, user_name, password, us
                 '''
             #encrypting the password
             hashed_password = generate_password_hash(password, method='scrypt')
-            cursor.execute(insert_user(
+            cursor.execute(insert_user, (
                     first_name, 
                     last_name, 
                     email, 
@@ -94,34 +94,39 @@ def add_user(first_name, last_name, email, phone_number, user_name, password, us
             #saving changes and closing the connection
             conn.commit()
             print("User added successfully")
-            conn.close()
-            return True
+            new_user_id = cursor.lastrowid
+            return new_user_id
         #handling exceptions
-    except sqlite3.IntegrityError:
-        print("Błąd: Taki użytkownik już istnieje.")
+    except sqlite3.IntegrityError as e:
+        # To łapie błędy logiczne (Unique, Not Null)
+        print(f"🛑 BŁĄD INTEGRALNOŚCI: {e}")  # <--- TO JEST KLUCZOWE!
         return False
+        
+    except sqlite3.Error as e:
+        # To łapie błędy składni SQL i inne techniczne
+        print(f"🛑 BŁĄD TECHNICZNY SQL: {e}") # <--- TO TEŻ!
+        return False
+        
     except Exception as e:
-        print(f"Nieoczekiwany błąd: {e}")
+        # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+        print(f"🛑 BŁĄD PYTHON: {e}")
         return False
 
 def get_user_by_username(user_name):
     #connecting to the database
-    with initialize_database() as conn:
-        cursor = conn.cursor()
-        #retrieving user by username
-        user = '''
-            SELECT * FROM User WHERE userName = ?
-        '''
-        cursor.execute(user, (user_name,))
-        user = cursor.fetchone()
-        conn.close()
-        return user
+    conn = initialize_database()
+    cursor = conn.cursor()
+    #retrieving user by username
+    user = '''
+        SELECT * FROM User WHERE userName = ?
+    '''
+    cursor.execute(user, (user_name,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
 
 #reservation functions
 def create_reservation(date, start_time, end_time, number_of_people, user_id):
-
-
-    
     #connecting to the database
     with initialize_database() as conn:
         cursor = conn.cursor()
@@ -170,7 +175,6 @@ def create_reservation(date, start_time, end_time, number_of_people, user_id):
         #saving changes and closing the connection
         conn.commit()
         print("Reservation created successfully")
-        conn.close()
         return True   
 
 def modify_reservation_status(reservation_id, new_status):
@@ -187,7 +191,7 @@ def modify_reservation_status(reservation_id, new_status):
         #saving changes and closing the connection
         conn.commit()
         print("Reservation status updated successfully")
-        conn.close()
+        return True
 
 def main():
     create_table()
