@@ -8,7 +8,7 @@
 <body>
     <div>
         <button id="registration_form_button">Zarejestruj się</button>
-        <button id="login_button">Zaloguj się</button>
+        <button id="login_form_button">Zaloguj się</button>
     </div>
     <div id="registration_container" style="display:none;">
         <form id="register_form">
@@ -47,5 +47,25 @@
             <button type="submit" id="register_button">Zarejestruj się</button>
         </form>
     </div>
+    <div id="login_container" style="display:none;">
+        <form id="login_form">
+            <label for="login_user_name">
+                Nazwa użytkownika:
+                <input type="text" id="login_user_name" placeholder="Nazwa użytkownika" required>
+            </label>
+            <label for="login_password">
+                Hasło:
+                <input type="password" id="login_password" placeholder="Hasło" required>
+            </label>
+            <button type="submit" id="login_submit_button">Zaloguj się</button>
+        </form>
+    </div>
+    <!-- To jest tylko testowy display zobaczyć czy umiem go napisać, trzeba będzie poprawić i uwzględnić różne typy kont-->
+    <div id="logged_in_display_container" style="display:none;">
+        <h2>Witaj, użytkowniku!</h2>
+        <button id="reservation_form_button">Nowa rezerwacja </button>
+        <button id="logout_button">Wyloguj się</button>
+    </div>
     <script src="/static/script.js"></script>
+</body>
 </html>

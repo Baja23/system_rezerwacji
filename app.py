@@ -1,13 +1,15 @@
 from flask import Flask, request, jsonify, session, render_template
 import database as db
 import string
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    is_logged_in = 'user_id' in session
+    return render_template('index.html', logged_in=is_logged_in)
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -56,6 +58,24 @@ def register():
             return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
         else:
             return jsonify({'error': 'Registration failed'}), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    user_in_db = db.get_user_by_username(data.get('user_name'))
+    if user_in_db and check_password_hash(user_in_db['password'], data.get('password')):
+        session['user_id'] = user_in_db['id']
+        session['user_type_id'] = user_in_db['userTypeID']
+        return jsonify({'message': 'Login successful'}), 200
+    else:
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+@app.route('/api/reservation', method=['POST'])
+def new_reservation():
+    data = request.json
+    date = data.get('date')
+    time = data.get('time')
+    people = data.get('number_of_people')
 
 if __name__ == '__main__':
     app.run(debug=True)
