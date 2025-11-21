@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Page loaded correctly.");
     // 1. Definicja zmiennych (const ...)
     const registerButton = document.getElementById('registration_form_button');
-    const registrationContainter = document.getElementById('registration_container');
+    const registrationContainer = document.getElementById('registration_container');
     const registrationForm = document.getElementById('register_form');
     const loginButton = document.getElementById('login_form_button');
     const loginContainer = document.getElementById('login_container');
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Przycisk rejestracji
     if (registerButton) {
         registerButton.addEventListener('click', () => {   
-            registrationContainter.style.display = 'block';
+            registrationContainer.style.display = 'block';
             console.log('Registration button clicked. Registration form displayed.');
         });
     }
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Trying to submit data from the registration form.');
             if(document.getElementById('password').value !== document.getElementById('confirm_password').value) {
                 alert('Passwords do not match!');
-                return False;
+                return false;
             }
             else {
                 console.log('Passwords match. Proceeding with form submission.');
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     password: document.getElementById('password').value,
                     user_type_id: parseInt(document.getElementById('user_type').value)
             };
-        }
+        
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Network error:', error);
                 alert('Could not connect to the server.');
             }
+        }
         });
     }
 

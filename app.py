@@ -39,7 +39,7 @@ def register():
         return jsonify({'error': 'Password must contain at least one uppercase letter'}), 400
     elif not any(char.islower() for char in data['password']):
         return jsonify({'error': 'Password must contain at least one lowercase letter'}), 400
-    elif not any(c in string.punctuation for c in data['password']):
+    elif not any(char in string.punctuation for char in data['password']):
         return jsonify({'error': 'Password must contain at least one special character'}), 400
     elif ' ' in data['password']:
         return jsonify({'error': 'Password must not contain spaces'}), 400   
@@ -70,12 +70,12 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
-@app.route('/api/reservation', method=['POST'])
-def new_reservation():
-    data = request.json
-    date = data.get('date')
-    time = data.get('time')
-    people = data.get('number_of_people')
+#@app.route('/api/reservation', method=['POST'])
+#def new_reservation():
+    #data = request.json
+    #date = data.get('date')
+    #time = data.get('time')
+    #people = data.get('number_of_people')
 
 if __name__ == '__main__':
     app.run(debug=True)
