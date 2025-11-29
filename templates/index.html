@@ -3,69 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XYZ strona startowa</title>
+    <title>Restauracja XYZ</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
-    <div>
-        <button id="registration_form_button">Zarejestruj się</button>
-        <button id="login_form_button">Zaloguj się</button>
-    </div>
-    <div id="registration_container" style="display:none;">
-        <form id="register_form">
-            <label for="first_name">
-                Imię:
-                <input type="text" id="first_name" placeholder="Imię" required>
-            </label>
-            <label for="last_name">
-                Nazwisko:
-                <input type="text" id="last_name" placeholder="Nazwisko" required>
-            </label>
-            <label for="'email">
-                Email:
-                <input type="email" id="email" placeholder="Email" required>
-            </label>
-            <label for="phone_number">
-                Numer telefonu:
-                <input type="number" id="phone_number" placeholder="Numer telefonu" required>
-            </label>
-            <label for="user_name">
-                Nazwa użytkownika:
-                <input type="text" id="user_name" placeholder="Nazwa użytkownika" required>
-            </label>
-            <label for="password">
-                Hasło:
-                <input type="password" id="password" placeholder="Hasło" required>
-            </label>
-            <label for="confirm_password">
-                Potwierdź hasło:
-                <input type="password" id="confirm_password" placeholder="Potwierdź hasło" required>
-            </label>
-            <label for="user_type">
-                <input type="hidden" id="user_type" value="1">
-            </label>
+    <header>
+        <div class="top-index">
+            <div class="logo">
+                <img src="/static/images/Logo.png" alt="logo">
+            </div>
+            <div class="name">Restauracja<br>XYZ
+            </div>
+            <div class="margin_top">
+                <p class="name_2">est. 1990</p>
+            </div>
+            </div>
 
-            <button type="submit" id="register_button">Zarejestruj się</button>
-        </form>
-    </div>
-    <div id="login_container" style="display:none;">
-        <form id="login_form">
-            <label for="login_user_name">
-                Nazwa użytkownika:
-                <input type="text" id="login_user_name" placeholder="Nazwa użytkownika" required>
-            </label>
-            <label for="login_password">
-                Hasło:
-                <input type="password" id="login_password" placeholder="Hasło" required>
-            </label>
-            <button type="submit" id="login_submit_button">Zaloguj się</button>
-        </form>
-    </div>
-    <!-- To jest tylko testowy display zobaczyć czy umiem go napisać, trzeba będzie poprawić i uwzględnić różne typy kont-->
+
+    </header>
+    <section id="welcome" class="middle">
+        <p class="description">
+            Witamy w naszym elektronicznym systemie rezerwacji Restauracji XYZ<br>
+            Jak chcesz kontynuować?<br>
+        </p>
+    </section>
+    <section id="selection" class="options">
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="/reservation" class="nav-link">Gość</a></li>
+                <li class="nav-item"><a href="/login" class="nav-link">Zaloguj</a></li>
+                <li class="nav-item"><a href="/registration" class="nav-link">Zarejestruj</a></li>
+            </ul>
+        </nav>
+    </section>
+
+
+
+    <!-- To jest tylko testowy display zobaczyć czy umiem go napisać, trzeba będzie poprawić i uwzględnić różne typy kont
     <div id="logged_in_display_container" style="display:none;">
         <h2>Witaj, użytkowniku!</h2>
         <button id="reservation_form_button">Nowa rezerwacja </button>
         <button id="logout_button">Wyloguj się</button>
     </div>
-    <script src="/static/script.js"></script>
+    <script src="/static/script.js"></script> -->
 </body>
 </html>

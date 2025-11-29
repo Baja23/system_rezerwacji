@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Nasłuchiwanie przycisków
     // Przycisk rejestracji
     if (registerButton) {
-        registerButton.addEventListener('click', () => {   
+        registerButton.addEventListener('click', () => {
             registrationContainer.style.display = 'block';
             console.log('Registration button clicked. Registration form displayed.');
         });
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     password: document.getElementById('password').value,
                     user_type_id: parseInt(document.getElementById('user_type').value)
             };
-        
+
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
@@ -49,19 +49,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 if (response.ok) {
                     console.log('Registration successful:' + result.message);
-
+                    alert('User registered successfully')
+                // Lekka modyfikacja, do else wrzuciłem ładowanie błędu, a catch podzieliłem na błąd sieci oraz wygenerowanie błędu zaciągniętego z else
                 } else {
                     console.error('Registration failed:' + result.error);
+                    throw new Error(result.error);
                 }
             } catch (error) {
+                if (error instanceof TypeError) {
                 console.error('Network error:', error);
                 alert('Could not connect to the server.');
+                }
+                else {
+                    alert(error.message);
+                }
             }
         }
         });
     }
 
-    // Przycisk logowania 
+    // Przycisk logowania
     if (loginButton) {
         loginButton.addEventListener('click', () => {
             loginContainer.style.display = 'block';
@@ -84,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(loginData) 
+                    body: JSON.stringify(loginData)
                 });
                 const result = await response.json();
                 if (response.ok) {
@@ -98,8 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Network error:', error);
-                alert('Could not connect to the server.');  
-            
+                alert('Could not connect to the server.');
+
             }
         });
     }

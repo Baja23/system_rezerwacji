@@ -1,6 +1,7 @@
-restauracja.db
-__pycache__/
-venv/
+__pycache__
 dane.json
-testing.py
 dane2.json
+venv
+restauracja.db
+testing.py
+database.py
