@@ -27,17 +27,19 @@ def register():
     user_data_needed = ['first_name', 'last_name', 'email', 'phone_number', 'user_name', 'password', 'user_type_id']
 
     #validating user input
-    if db.get_user_by_phone_number(data['phone_number']):
-        return jsonify({'error': 'Phone number already registered'}), 400
-    if  db.get_user_by_email(data['email']):
+    if not all(key in data for key in user_data_needed):
+        return jsonify({'error': 'Missing user data'}), 400
+    elif  db.get_user_by_email(data['email']):
         return jsonify({'error': 'Email already registered'}), 400
+    elif db.get_user_by_phone_number(data['phone_number']):
+        return jsonify({'error': 'Phone number already registered'}), 400
     elif not all(key in data for key in user_data_needed):
         return jsonify({'error': 'Missing user data'}), 400
     elif not data['first_name'].isalpha() or not data['last_name'].isalpha():
         return jsonify({'error': 'First name and last name must contain only letters'}), 400
     elif not data['phone_number'].isnumeric() or len(data['phone_number']) != 9:
         return jsonify({'error': 'Phone number must be numeric and exactly 9 digits long'}), 400
-    elif '@' not in data['email'] or '.' not in data['email']:
+    elif '@' not in data['email'] or '.pl' or '.com' not in data['email']:
         return jsonify({'error': 'Invalid email format'}), 400
     elif not data['user_name'].isalnum() or len(data['user_name']) < 5:
         return jsonify({'error': 'Username must be alphanumeric and at least 5 characters long'}), 400
