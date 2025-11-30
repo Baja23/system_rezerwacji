@@ -11,6 +11,8 @@ class UserRegistrationModel(BaseModel):
     password: str=Field(..., min_length=10)
     user_type_id: int=Field(...)
 
+
+    #Należy dopisać te metody klasy do app.py aby zostały wywołane
     @field_validator('password')
     def validate_password(cls, value: str) -> str:
         if ' ' in value:
