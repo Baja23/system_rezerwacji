@@ -22,6 +22,8 @@ def index():
 def registration_page():
     return render_template("registration.html")
 
+
+#Należy dopisać tutaj metody klasy, aby mogły być wywołane
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
@@ -86,4 +88,5 @@ def reservation_page():
 if __name__ == '__main__':
 
     app.run(debug=True)
+
 
