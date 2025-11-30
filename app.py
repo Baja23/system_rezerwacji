@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, session, render_template
 import database as db
-import string
 from werkzeug.security import check_password_hash
+from schemas import UserRegistrationModel, ValidationError
+import sqlite3
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -25,38 +26,16 @@ def registration_page():
 def register():
     data = request.json
     user_data_needed = ['first_name', 'last_name', 'email', 'phone_number', 'user_name', 'password', 'user_type_id']
-
     #validating user input
-    if db.get_user_by_phone_number(data['phone_number']):
-        return jsonify({'error': 'Phone number already registered'}), 400
-    if  db.get_user_by_email(data['email']):
-        return jsonify({'error': 'Email already registered'}), 400
-    elif not all(key in data for key in user_data_needed):
-        return jsonify({'error': 'Missing user data'}), 400
-    elif not data['first_name'].isalpha() or not data['last_name'].isalpha():
-        return jsonify({'error': 'First name and last name must contain only letters'}), 400
-    elif not data['phone_number'].isnumeric() or len(data['phone_number']) != 9:
-        return jsonify({'error': 'Phone number must be numeric and exactly 9 digits long'}), 400
-    elif '@' not in data['email'] or '.' not in data['email']:
-        return jsonify({'error': 'Invalid email format'}), 400
-    elif not data['user_name'].isalnum() or len(data['user_name']) < 5:
-        return jsonify({'error': 'Username must be alphanumeric and at least 5 characters long'}), 400
-    elif db.get_user_by_username(data['user_name']):
-        return jsonify({'error': 'Username already exists'}), 400
-    elif len(data['password']) < 10:
-        return jsonify({'error': 'Password must be at least 10 characters long'}), 400
-    elif not any(char.isdigit() for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one digit'}), 400
-    elif not any(char.isupper() for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one uppercase letter'}), 400
-    elif not any(char.islower() for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one lowercase letter'}), 400
-    elif not any(char in string.punctuation for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one special character'}), 400
-    elif ' ' in data['password']:
-        return jsonify({'error': 'Password must not contain spaces'}), 400
-    else:
+    try:
+        user_data = {key: data[key] for key in user_data_needed}
+        user = UserRegistrationModel(**user_data)
+    except ValidationError as e:
+        return jsonify({'error': e.errors()}), 400
+    except KeyError as e:
+        return jsonify({'error': f'Missing field: {str(e)}'}), 400 
     #adding user to the database
+    if not db.get_user_by_username(user.user_name):
         user_id = db.add_user(
             data['first_name'],
             data['last_name'],
@@ -70,9 +49,10 @@ def register():
             return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
         else:
             return jsonify({'error': 'Registration failed'}), 500
-
-
-
+    else:
+        return jsonify({'error': 'Username already exists'}), 400
+    # dodać walidację unikalności email i phone_number
+      
 @app.route('/login')
 def login_page():
     return render_template("login.html")
