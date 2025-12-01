@@ -12,8 +12,8 @@ class UserRegistrationModel(BaseModel):
     user_type_id: int=Field(...)
 
 
-    #Należy dopisać te metody klasy do app.py aby zostały wywołane
     @field_validator('password')
+    @classmethod
     def validate_password(cls, value: str) -> str:
         if ' ' in value:
             raise ValueError('Password must not contain spaces')
@@ -28,6 +28,7 @@ class UserRegistrationModel(BaseModel):
         return value
     
     @field_validator('user_name')
+    @classmethod
     def validate_user_name(cls, value: str) -> str:
         pattern=r'^(?=.*\d)(?=.*[a-zA-Z])[A-Za-z0-9]+$'
         if not re.match(pattern, value):
