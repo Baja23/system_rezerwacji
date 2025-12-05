@@ -3,4 +3,5 @@ dane.json
 dane2.json
 venv
 restauracja.db
-testing.py 
+testing.py
+database.py

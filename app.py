@@ -27,6 +27,7 @@ def registration_page():
 def register():
     data = request.json
     user_data_needed = ['first_name', 'last_name', 'email', 'phone_number', 'user_name', 'password', 'user_type_id']
+    
     #validating user input
     try:
         user_data = {key: data[key] for key in user_data_needed}
