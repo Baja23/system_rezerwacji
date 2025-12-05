@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, session, render_template
 import database as db
-import string
 from werkzeug.security import check_password_hash
+from schemas import UserRegistrationModel, ValidationError, ReservationModel
+import sqlite3
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -21,60 +22,44 @@ def index():
 def registration_page():
     return render_template("registration.html")
 
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     user_data_needed = ['first_name', 'last_name', 'email', 'phone_number', 'user_name', 'password', 'user_type_id']
-
+    
     #validating user input
-    if not all(key in data for key in user_data_needed):
-        return jsonify({'error': 'Missing user data'}), 400
-    elif  db.get_user_by_email(data['email']):
-        return jsonify({'error': 'Email already registered'}), 400
-    elif db.get_user_by_phone_number(data['phone_number']):
-        return jsonify({'error': 'Phone number already registered'}), 400
-    elif not all(key in data for key in user_data_needed):
-        return jsonify({'error': 'Missing user data'}), 400
-    elif not data['first_name'].isalpha() or not data['last_name'].isalpha():
-        return jsonify({'error': 'First name and last name must contain only letters'}), 400
-    elif not data['phone_number'].isnumeric() or len(data['phone_number']) != 9:
-        return jsonify({'error': 'Phone number must be numeric and exactly 9 digits long'}), 400
-    elif '@' not in data['email'] or '.pl' or '.com' not in data['email']:
-        return jsonify({'error': 'Invalid email format'}), 400
-    elif not data['user_name'].isalnum() or len(data['user_name']) < 5:
-        return jsonify({'error': 'Username must be alphanumeric and at least 5 characters long'}), 400
-    elif db.get_user_by_username(data['user_name']):
-        return jsonify({'error': 'Username already exists'}), 400
-    elif len(data['password']) < 10:
-        return jsonify({'error': 'Password must be at least 10 characters long'}), 400
-    elif not any(char.isdigit() for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one digit'}), 400
-    elif not any(char.isupper() for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one uppercase letter'}), 400
-    elif not any(char.islower() for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one lowercase letter'}), 400
-    elif not any(char in string.punctuation for char in data['password']):
-        return jsonify({'error': 'Password must contain at least one special character'}), 400
-    elif ' ' in data['password']:
-        return jsonify({'error': 'Password must not contain spaces'}), 400
-    else:
+    try:
+        user_data = {key: data[key] for key in user_data_needed}
+        user = UserRegistrationModel(**user_data)
+    except ValidationError as e:
+        messages = "; ".join([err['msg'] for err in e.errors()])
+        return jsonify({'error': messages}), 400
+    except KeyError as e:
+        return jsonify({'error': f'Missing field: {str(e)}'}), 400 
+    #checking for existing user
+    user_info_in_db = { 'username': db.get_user_by_username(user.user_name),
+                        'email': db.get_user_by_email(user.email),
+                        'phone_number': db.get_user_by_phone_number(user.phone_number)
+                        }
+    for key, value in user_info_in_db.items():
+        if value:
+            return jsonify({'error': f'{key.replace("_", " ").capitalize()} already exists'}), 400
     #adding user to the database
-        user_id = db.add_user(
-            data['first_name'],
-            data['last_name'],
-            data['email'],
-            data['phone_number'],
-            data['user_name'],
-            data['password'],
-            data['user_type_id']
-        )
-        if user_id:
-            return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
-        else:
-            return jsonify({'error': 'Registration failed'}), 500
-
-
-
+    user_id = db.add_user(
+        data['first_name'],
+        data['last_name'],
+        data['email'],
+        data['phone_number'],
+        data['user_name'],
+        data['password'],
+        data['user_type_id']
+    )
+    if user_id:
+        return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
+    else:
+        return jsonify({'error': 'Registration failed'}), 500
+      
 @app.route('/login')
 def login_page():
     return render_template("login.html")
@@ -90,22 +75,56 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
+# route to get guest user info
+@app.route('/user_info', method=['POST'])
+def get_guest_user_info():
+    user_data = request.json
+    user_id = db.add_user(
+        user_data['first_name'],
+        user_data['last_name'],
+        user_data['email'],
+        user_data['phone_number'],
+        None,
+        None,
+        0 # guest user type ID
+    )
+    return user_data
 
 @app.route('/reservation')
 def reservation_page():
     return render_template("reservation.html")
 
-#@app.route('/api/reservation', method=['POST'])
-#def new_reservation():
-    #data = request.json
-    #date = data.get('date')
-    #startTime = data.get('start_time')
-    #endTime = data.get('end_time)
-    #people = data.get('number_of_people')
-
-
+@app.route('/api/reservation', method=['POST'])
+def make_reservation(): 
+    if 'user_id' not in session: 
+        user_info = get_guest_user_info()
+        user_id = user_info['id']
+    else:
+        user_id = session['user_id']
+    data = request.json
+    data_needed = ['date', 'start_time', 'end_time', 'number_of_people']
+    try:
+        reservation_data = {key: data[key] for key in data_needed}
+        reservation = ReservationModel(**reservation_data)
+    except ValidationError as e:
+        messages = "; ".join([err['msg'] for err in e.errors()])
+        return jsonify({'error': messages}), 400
+    except KeyError as e:
+        return jsonify({'error': f'Missing field: {str(e)}'}), 400
+    reservation_id = db.add_reservation(
+        data['date'],
+        data['start_time'],
+        data['end_time'],
+        data['number_of_people'],
+        user_id
+    )
+    if reservation_id:
+        return jsonify({'message': 'Reservation created successfully', 'reservation_id': reservation_id}), 201
+    else:
+        return jsonify({'error': 'Reservation creation failed'}), 500    
 
 if __name__ == '__main__':
 
     app.run(debug=True)
+
 
