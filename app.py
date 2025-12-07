@@ -32,6 +32,8 @@ def register():
     try:
         user_data = {key: data[key] for key in user_data_needed}
         user = UserRegistrationModel(**user_data)
+        user.validate_password(user.password)
+        user.validate_user_name(user.user_name)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
@@ -76,7 +78,7 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
 
 # route to get guest user info
-@app.route('/user_info', method=['POST'])
+@app.route('/user_info', methods=['POST'])
 def get_guest_user_info():
     user_data = request.json
     user_id = db.add_user(
@@ -86,7 +88,7 @@ def get_guest_user_info():
         user_data['phone_number'],
         None,
         None,
-        0 # guest user type ID
+        1 # guest user type ID
     )
     return user_data
 
@@ -94,8 +96,9 @@ def get_guest_user_info():
 def reservation_page():
     return render_template("reservation.html")
 
-@app.route('/api/reservation', method=['POST'])
+@app.route('/api/reservation', methods=['POST'])
 def make_reservation(): 
+    #co jak user załaduje stronę z formularzem rezerwacji bez podania danych i bez zalogowania?
     if 'user_id' not in session: 
         user_info = get_guest_user_info()
         user_id = user_info['id']
@@ -111,17 +114,27 @@ def make_reservation():
         return jsonify({'error': messages}), 400
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
-    reservation_id = db.add_reservation(
-        data['date'],
-        data['start_time'],
-        data['end_time'],
-        data['number_of_people'],
+    reservation_id = db.create_reservation(
+        reservation['date'],
+        reservation['start_time'],
+        reservation['end_time'],
+        reservation['number_of_people'],
         user_id
     )
     if reservation_id:
         return jsonify({'message': 'Reservation created successfully', 'reservation_id': reservation_id}), 201
     else:
-        return jsonify({'error': 'Reservation creation failed'}), 500    
+        return jsonify({'error': 'Reservation creation failed'}), 500
+    
+    #modyfikacja rezerwacji
+
+    #usuwanie rezerwacji
+
+    #przeglądanie rezerwacji 
+
+    #logowanie pracownicy
+
+    #tworzenie kont pracowniczych
 
 if __name__ == '__main__':
 

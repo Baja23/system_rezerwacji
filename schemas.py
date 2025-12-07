@@ -1,17 +1,30 @@
-from pydantic import BaseModel, Field, EmailStr, ValidationError, field_validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, ValidationError
 import string
 import re
 import datetime
 
 class UserRegistrationModel(BaseModel):
-    first_name: str=Field(..., pattern=r'^[A-Za-z]+$')
-    last_name: str=Field(..., pattern=r'^[A-Za-z]+$')
+    first_name: str=Field(...)
+    last_name: str=Field(...)
     email: EmailStr=Field(...)
-    phone_number: str=Field(..., pattern=r'^\d{9}$')
+    phone_number: str=Field(...)
     user_name: str=Field(..., min_length=5)
     password: str=Field(..., min_length=10)
     user_type_id: int=Field(...)
 
+    @field_validator('first_name', 'last_name')
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if not re.match(r'^[A-Za-z]+$', value):
+            raise ValueError('Name must contain only letters')
+        return value
+    
+    @field_validator('phone_number')
+    @classmethod
+    def validate_phone_number(cls, value: str) -> str:
+        if not re.match(r'^\d{9}$', value):
+            raise ValueError('Phone number must be exactly 9 digits')
+        return value
 
     @field_validator('password')
     @classmethod
@@ -33,7 +46,7 @@ class UserRegistrationModel(BaseModel):
     def validate_user_name(cls, value: str) -> str:
         pattern=r'^(?=.*\d)(?=.*[a-zA-Z])[A-Za-z0-9]+$'
         if not re.match(pattern, value):
-            raise ValueError('Username must not contain spaces')
+            raise ValueError('Username must contain only letters and digits, with at least one of each')
         return value
 
 
