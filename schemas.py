@@ -4,8 +4,8 @@ import re
 import datetime
 
 class UserRegistrationModel(BaseModel):
-    first_name: str=Field(...) #only letters
-    last_name: str=Field(...) #only letters
+    first_name: str=Field(...)
+    last_name: str=Field(...)
     email: EmailStr=Field(...)
     phone_number: str=Field(...)
     user_name: str=Field(..., min_length=5)
