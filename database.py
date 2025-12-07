@@ -38,7 +38,7 @@ def create_table():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 firstName TEXT NOT NULL,
                 lastName TEXT NOT NULL,
-                email TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
                 phoneNumber TEXT NOT NULL,
                 userName TEXT UNIQUE,
                 password TEXT,
@@ -100,17 +100,17 @@ def add_user(first_name, last_name, email, phone_number, user_name, password, us
         # handling exceptions
     except sqlite3.IntegrityError as e:
         # To łapie błędy logiczne (Unique, Not Null)
-        print(f"🛑 BŁĄD INTEGRALNOŚCI: {e}")  # <--- TO JEST KLUCZOWE!
+        print(f"BŁĄD INTEGRALNOŚCI: {e}")  # <--- TO JEST KLUCZOWE!
         return False
 
     except sqlite3.Error as e:
         # To łapie błędy składni SQL i inne techniczne
-        print(f"🛑 BŁĄD TECHNICZNY SQL: {e}")  # <--- TO TEŻ!
+        print(f"BŁĄD TECHNICZNY SQL: {e}")  # <--- TO TEŻ!
         return False
 
     except Exception as e:
         # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
-        print(f"🛑 BŁĄD PYTHON: {e}")
+        print(f"BŁĄD PYTHON: {e}")
         return False
 
 
@@ -205,7 +205,6 @@ def create_reservation(date, start_time, end_time, number_of_people, user_id):
         conn.commit()
         print("Reservation created successfully")
         return True
-
 
 def modify_reservation_status(reservation_id, new_status):
     # connecting to the database

@@ -88,7 +88,7 @@ def get_guest_user_info():
         user_data['phone_number'],
         None,
         None,
-        0 # guest user type ID
+        1 # guest user type ID
     )
     return user_data
 
