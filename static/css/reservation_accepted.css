@@ -1,0 +1,78 @@
+
+/* Części głowne */
+
+.success_message {
+    max-width: 95%;
+    margin: 0 auto;
+    text-align: center;
+    line-height: 4;
+    margin-bottom: 80px;
+}
+
+.card {
+    max-width: 95%;
+    margin: 0 auto;
+    text-align: center;
+    line-height: 1;
+}
+
+.final_message {
+    max-width: 95%;
+    margin: 0 auto;
+    text-align: center;
+    line-height: 2;
+
+}
+
+.line {
+  display: inline-block;
+  min-width: 200px;
+  border-bottom: 1px solid #000;
+  text-align: center;
+}
+
+
+/* ------ */
+
+
+/* Loga i style*/
+
+.description {
+    font-family: "PlayfairDisplay";
+    font-size: 30px;
+    text-align: center;
+    font-style: italic;
+}
+
+.card p {
+    font-family: "PlayfairDisplay";
+    font-size: 30px;
+    text-align: center;
+    font-style: italic;
+
+}
+
+.final_message p {
+    font-family: "PlayfairDisplay";
+    font-size: 30px;
+    text-align: center;
+    font-style: italic;
+}
+
+/* ------ */
+
+/** Responsywnosc */
+
+@media screen and (max-width: 768px){
+    header{
+        height: auto;
+
+    }
+    .top {
+        display: block;
+    }
+    .nav-link {
+        display: block;
+        height: auto;
+    }
+}

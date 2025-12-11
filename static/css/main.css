@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 /* Fonty */
 
@@ -101,4 +102,140 @@ body {
     text-align: center;
     font-style: italic;
     margin: 5px;
+=======
+
+/* Fonty */
+
+@font-face {
+  font-family: "BeachResort";
+  src: url("../fonts/beach-resort/BeachResort.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "PlayfairDisplay";
+  src: url("../fonts/Playfair_Display/PlayfairDisplay-Italic.ttf") format("truetype");
+}
+
+
+
+/* Części głowne */
+
+header {
+    margin-bottom: 50px;
+
+}
+
+body {
+    margin: 25px;
+    padding: 0px;
+    border: 3px solid black;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
+
+.top {
+    max-width: 95%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* ------ */
+
+
+/* Loga i style*/
+
+
+.logo {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: auto;
+
+
+
+}
+
+.logo img {
+    width: 200px;
+    height: auto;
+}
+
+.name {
+    font-family: "BeachResort";
+    font-size: 65px;
+    text-align: center;
+    line-height: 0.9;
+
+}
+
+.name_2 {
+    font-family: "PlayfairDisplay";
+    font-size: 20px;
+    text-align: center;
+    line-height: 0.5;
+}
+
+
+.name_3 {
+    font-family: "PlayfairDisplay";
+    font-size: 40px;
+    text-align: center;
+    margin-bottom: 100px;
+    font-style: italic;
+}
+
+.rules {
+    font-family: "PlayfairDisplay";
+    font-size: 17px;
+    line-height: 2;
+    margin: 35px
+}
+
+
+.rules_header {
+    font-family: "PlayfairDisplay";
+    font-size: 20px;
+    font-style: italic;
+    font-weight: bold;
+    margin: 15px
+
+
+}
+
+
+}
+
+.return {
+    max-width: 30px;
+    display: block;
+    font-family: "PlayfairDisplay";
+    text-align: left;
+    font-size: 20px;
+    margin-left: 50px;
+    margin-top: 15px;
+
+}
+
+.form-template {
+    font-family: "PlayfairDisplay";
+    font-size: 30px;
+    text-align: center;
+    font-style: italic;
+    margin: 5px;
+}
+
+@media screen and (max-width: 768px) {
+
+    .name {
+    font-size: 35px;
+    }
+
+    .name_2 {
+    font-size: 25px;
+    }
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
 }

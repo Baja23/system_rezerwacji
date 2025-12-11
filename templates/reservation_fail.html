@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-TEST
-<!--napisać formularz dla niezalogowanego usera, który to formularz pobiera jego dane do rezerwacji-->
-=======
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -26,7 +22,8 @@ TEST
     </div>
 </header>
 <section id="reservation_container" class="reservation_container">
-        <p class="name_3">Reservation</p>
+        <p class="name_3">Przepraszamy, niestety w wybranym terminie nie posiadamy wolnego stolika na wskazaną liczbę osób. <br>
+                            Prosimy wybrać inną datę/godzinę</p>
             <form id="reservation_form">
                 <!-- Cały formularz wkładam w jeden kontainer, tak, aby jedna strona była po prawej,
                 a druga po lewej. Potem dzielę to na dodatkowe dwa kontainery, aby formularze w
@@ -53,7 +50,7 @@ TEST
                     <div class="form-container">
                         <label for="accept_rules" class="checkbox-row">
                             <input type="checkbox" id="accept_rules" required>
-                            <p class="form-template">Akceptuję <a href="/rules">regulamin</a> Restauracji*</p>
+                            <p class="form-template">Akceptuję regulamin Restauracji*</p>
                         </label>
                         <label for="agree_to_contact" class="checkbox-row">
                             <input type="checkbox" id="agree_to_contact">
@@ -71,4 +68,3 @@ TEST
     <script src="/static/script.js"></script>
 </body>
 </html>
->>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restauracja XYZ</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/reservation_accepted.css">
+</head>
+<body>
+    <header>
+        <a class="return" href="/index">Powrót</a>
+        <div class="top">
+            <div class="logo">
+                <img src="/static/images/Logo.png" alt="logo">
+            </div>
+            <div class="name">Restauracja<br>XYZ
+            </div>
+            <div class="margin_top">
+                <p class="name_2">est. 1990</p>
+            </div>
+            </div>
+    </header>
+    <div id="success_message" class="success_message">
+        <p class="description">
+           DZIĘKUJEMY ZA RESERWACJĘ<br>
+            Poniżej przesyłamy szczegóły<br>
+        </p>
+   <div class="card">
+    <p>Data: <span class="line">{{ date }}</span></p>
+    <p>Godzina: <span class="line">{{ time }}</span></p>
+    <p>Ilość osób: <span class="line">{{ people }}</span></p>
+    </div>
+    <div class="final_message">
+    <p>Potwierdzenie prześlemy również na adres mailowy</p>
+    <p>DO ZOBACZENIA!</p>
+    </div>
+</body>
+</html>

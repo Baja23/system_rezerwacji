@@ -3,6 +3,7 @@ import string
 import re
 import datetime
 
+<<<<<<< HEAD
 class UserRegistrationModel(BaseModel):
     first_name: str=Field(...)
     last_name: str=Field(...)
@@ -11,6 +12,17 @@ class UserRegistrationModel(BaseModel):
     user_name: str=Field(..., min_length=5)
     password: str=Field(..., min_length=10)
     user_type_id: int=Field(...)
+=======
+
+class UserRegistrationModel(BaseModel):
+    first_name: str = Field(...)
+    last_name: str = Field(...)
+    email: EmailStr = Field(...)
+    phone_number: str = Field(...)
+    user_name: str = Field(..., min_length=5)
+    password: str = Field(..., min_length=10)
+    user_type_id: int = Field(...)
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
 
     @field_validator('first_name', 'last_name')
     @classmethod
@@ -18,7 +30,11 @@ class UserRegistrationModel(BaseModel):
         if not re.match(r'^[A-Za-z]+$', value):
             raise ValueError('Name must contain only letters')
         return value
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
     @field_validator('phone_number')
     @classmethod
     def validate_phone_number(cls, value: str) -> str:
@@ -40,21 +56,36 @@ class UserRegistrationModel(BaseModel):
         if not any(char in string.punctuation for char in value):
             raise ValueError('Password must contain at least one special character')
         return value
+<<<<<<< HEAD
     
     @field_validator('user_name')
     @classmethod
     def validate_user_name(cls, value: str) -> str:
         pattern=r'^(?=.*\d)(?=.*[a-zA-Z])[A-Za-z0-9]+$'
+=======
+
+    @field_validator('user_name')
+    @classmethod
+    def validate_user_name(cls, value: str) -> str:
+        pattern = r'^(?=.*\d)(?=.*[a-zA-Z])[A-Za-z0-9]+$'
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
         if not re.match(pattern, value):
             raise ValueError('Username must contain only letters and digits, with at least one of each')
         return value
 
 
 class ReservationModel(BaseModel):
+<<<<<<< HEAD
     date: str=Field(...)
     start_time: str=Field(...)
     end_time: str=Field(...)
     number_of_people: int=Field(..., gt=0)
+=======
+    date: str = Field(...)
+    start_time: str = Field(...)
+    end_time: str = Field(...)
+    number_of_people: int = Field(..., gt=0)
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
 
     @field_validator('date')
     @classmethod
@@ -66,7 +97,11 @@ class ReservationModel(BaseModel):
         except ValueError:
             raise ValueError('Date must be in DD-MM-YYYY format')
         return value
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
     @field_validator('start_time', 'end_time')
     @classmethod
     def validate_time(cls, value: str) -> str:
@@ -75,7 +110,11 @@ class ReservationModel(BaseModel):
         except ValueError:
             raise ValueError('Time must be in HH:MM format')
         return value
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
     @field_validator('end_time')
     @classmethod
     def validate_end_time(cls, value: str, info) -> str:
