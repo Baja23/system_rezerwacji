@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYZ strona startowa</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/login_panels.css">
+</head>
+<body>
+    <header>
+        <a class="return" href="/index">Powrót</a>
+        <div class="top">
+            <div class="logo">
+                <img src="/static/images/Logo.png" alt="logo">
+            </div>
+            <div class="name">Restauracja<br>XYZ
+            </div>
+            <div class="margin_top">
+                <p class="name_2">est. 1990</p>
+            </div>
+            </div>
+    </header>
+    <p class="name_3">Panel użytkownika</p>
+    <section id="login_panel" class="login_panel">
+        <div class="form-column">
+            <button type="button" id="new_reservation_button" class="user-account-button"><a href="/pending_reservation">Rezerwacje do akceptacji</a></button>
+            <button type="button" id="active_reservations_button" class="user-account-button"><a href="/active_reservations">Aktywne rezerwacje</a></button>
+            <button type="button" id="employers_button" class="user-account-button"><a href="/employers">Konta pracowników</a></button>
+            <button type="button" id="clients_button" class="user-account-button"><a href="/clients">Konta klientów</a></button>
+            <button type="button" id="logout_button" class="user-account-button">Wyloguj</button>
+        </div>
+    </section>
+</body>
+</html>

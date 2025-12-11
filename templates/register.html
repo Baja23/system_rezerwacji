@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYZ strona startowa</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body>
+    <header>
+        <a class="return" href="/index">Powrót</a>
+        <div class="top">
+            <div class="logo">
+                <img src="/static/images/Logo.png" alt="logo">
+            </div>
+            <div class="name">Restauracja<br>XYZ
+            </div>
+            <div class="margin_top">
+                <p class="name_2">est. 1990</p>
+            </div>
+            </div>
+    </header>
+
+    <section id="registration_container" class="registration_container">
+        <p class="name_3">Rejestracja</p>
+            <form id="register_form">
+                <!-- Cały formularz wkładam w jeden kontainer, tak, aby jedna strona była po prawej,
+                a druga po lewej. Potem dzielę to na dodatkowe dwa kontainery, aby formularze w
+                jednym kontainerze były ustawione w kolumnach -->
+                <div class="form-container">
+                    <div class="form-column">
+                        <label for="first_name">
+                            <input type="text" id="first_name" placeholder="Imię..." required>
+                            <p class="form-template">Imię*</p>
+                        </label>
+                        <label for="last_name">
+                            <input type="text" id="last_name" placeholder="Nazwisko..." required>
+                            <p class="form-template">Nazwisko*</p>
+                        </label>
+                        <label for="email">
+                            <input type="email" id="email" placeholder="Email..." required>
+                            <p class="form-template">Email*</p>
+                        </label>
+                        <label for="phone_number">
+                            <input type="number" id="phone_number" placeholder="Numer telefonu..." required>
+                            <p class="form-template">Numer telefonu*</p>
+                        </label>
+                    </div>
+                    <div class="form-column">
+                        <label for="user_name">
+                            <input type="text" id="user_name" placeholder="Nazwa użytkownika..." required>
+                            <p class="form-template">Nazwa użytkownika*</p>
+                        </label>
+                        <label for="password">
+                            <input type="password" id="password" placeholder="Hasło..." required>
+                            <p class="form-template">Hasło*</p>
+                        </label>
+                        <label for="confirm_password">
+                            <input type="password" id="confirm_password" placeholder="Potwierdź hasło..." required>
+                            <p class="form-template">Potwierdź hasło*</p>
+                        </label>
+                            <label for="accept_rules" class="checkbox-row">
+                                <input type="checkbox" id="accept_rules" required>
+                                <p class="form-template">Akceptuję <a href="/rules">regulamin</a> Restauracji*</p>
+                            </label>
+                        <label for="agree_to_contact" class="checkbox-row">
+                            <input type="checkbox" id="agree_to_contact">
+                            <p>Wyrażam zgodę na kontakt telefoniczny bądź mailowy w celu obsługi mojej rezerwacji.</p>
+                        </label>
+                        </div>
+                    </div>
+                    <label for="user_type">
+                        <input type="hidden" id="user_type" value="1">
+                    </label>
+                <button type="submit" id="register_button" class="registration-button">Zarejestruj się</button>
+                <p class="required-fields-text">*pola obowiązkowe</p>
+            </form>
+    </section>
+    <script src="/static/script.js"></script>
+</body>
+</html>

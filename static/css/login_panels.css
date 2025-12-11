@@ -1,0 +1,70 @@
+/* Czesci glowne */
+
+.user_account {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+
+.form-column {
+    max-width: none;
+    flex-direction: column;
+    display: flex;
+}
+
+
+
+
+/* ------ */
+
+
+/* Style */
+
+
+
+
+
+
+.user-account-button {
+    display: block;
+    margin: 70px auto 0 auto;
+    font-family: "PlayfairDisplay";
+    width: 400px;
+    height: 50px;
+    padding: 0;
+    line-height: 50px;
+    font-size: 30px;
+    text-align: center;
+    border: 3px solid black;
+}
+
+/* ------ */
+
+
+
+/** Responsywność */
+
+@media screen and (max-width: 768px) {
+
+    .form-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .form-column {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .form-column input {
+        width: 100%;
+    }
+
+    .checkbox-row {
+        width: 100%;
+        max-width: 400px;
+    }
+}
