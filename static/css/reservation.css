@@ -28,8 +28,8 @@
 
 .form-column input {
     width: 100%;
-    max-width: 200px
-    height: 100%
+    max-width: 200px;
+    height: 100%;
     box-sizing: border-box;
     border-bottom: 2px solid #444;
     outline: none;
