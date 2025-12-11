@@ -153,6 +153,11 @@ def get_user_by_phone_number(phone_number):
     user = cursor.fetchone()
     return user
 
+#reset password by user_username
+
+#modify user by user_name
+
+#delete user by user_name
 
 # reservation functions
 def create_reservation(date, start_time, end_time, number_of_people, user_id):
