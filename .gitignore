@@ -10,6 +10,5 @@ restauracja.db
 __pycache__/
 venv/
 dane.json
-testing.py
 dane2.json
 additional_sql_scripts.ipnyb
