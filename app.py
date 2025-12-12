@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify, session, render_template, current_app
+from flask import Flask, request, jsonify, session, render_template, current_app, redirect
 import database as db
 from werkzeug.security import check_password_hash
-from schemas import UserRegistrationModel, ValidationError, ReservationModel
-import sqlite3
+from schemas import UserRegistrationModel, ValidationError, ReservationModel, UserInfo
+from classes import User, Reservation
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -28,7 +28,6 @@ def registration_page():
 def register():
     data = request.json
     user_data_needed = ['first_name', 'last_name', 'email', 'phone_number', 'user_name', 'password', 'user_type_id']
-
     # validating user input
     try:
         user_data = {key: data[key] for key in user_data_needed}
@@ -40,26 +39,18 @@ def register():
         return jsonify({'error': messages}), 400
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
-        # checking for existing user
-    user_info_in_db = {'username': db.get_user_by_username(user.user_name),
-                       'email': db.get_user_by_email(user.email),
-                       'phone_number': db.get_user_by_phone_number(user.phone_number)
-                       }
-    for key, value in user_info_in_db.items():
-        if value:
-            return jsonify({'error': f'{key.replace("_", " ").capitalize()} already exists'}), 400
-    # adding user to the database
-    user_id = db.add_user(
-        data['first_name'],
-        data['last_name'],
-        data['email'],
-        data['phone_number'],
-        data['user_name'],
-        data['password'],
-        data['user_type_id']
-    )
+    
+    #initializing a User object with verified data
+    new_user = User(**user.model_dump())
+    try:
+        user_id = new_user.save_user_info()
+    except ValueError:
+        return jsonify({'error': 'User already exists'}), 409
     if user_id:
-        return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
+        target_url = '/user_account'
+        return jsonify({'message': 'User registered successfully', 
+                        'user_id': user_id,
+                        'redirect_url': target_url}), 201
     else:
         return jsonify({'error': 'Registration failed'}), 500
 
@@ -72,28 +63,41 @@ def login_page():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    user_in_db = db.get_user_by_username(data.get('user_name'))
-    if user_in_db and check_password_hash(user_in_db['password'], data.get('password')):
-        session['user_id'] = user_in_db['id']
-        session['user_type_id'] = user_in_db['userTypeID']
-        return jsonify({'message': 'Login successful'}), 200
+    logged_user = User.login(data.get('user_name'), data.get('password'))
+    if logged_user:
+        session['user_id'] = logged_user.id
+        session['user_name'] = logged_user.user_name
+        session['user_type_id'] = logged_user.user_type_id
+        target_url = '/user_account'
+        if session['user_type_id'] == 3:
+            target_url = '/waiter_accoount'
+        elif session['user_type_id'] == 4 or session['user_type_id'] == 5:
+            target_url = '/manager_account'
+    # 5. Wysyłamy instrukcję do Frontendu
+        return jsonify({
+        'message': 'Zalogowano pomyślnie',
+        'redirect_url': target_url
+        }), 200
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
+@app.route('/personal_data')
+def personal_page():
+    return render_template("personal_data.html")
 
 # route to get guest user info
-@app.route('/user_info', methods=['POST'])
+@app.route('/api/personal_data', methods=['GET'])
 def get_guest_user_info():
-    user_data = request.json
-    user_id = db.add_user(
-        user_data['first_name'],
-        user_data['last_name'],
-        user_data['email'],
-        user_data['phone_number'],
-        None,
-        None,
-        1  # guest user type ID
-    )
+    data = request.json
+    try:
+        user = UserInfo(**data)
+        user.validate_name
+        user.validate_phone_number
+    except ValidationError as e:
+        messages = "; ".join([err['msg'] for err in e.errors()])
+        return jsonify({'error': messages}), 400
+    user_data = User(user.model_dump())
+    user_data.save_user_info()
     return user_data
 
 
@@ -106,8 +110,15 @@ def reservation_page():
 def make_reservation():
     # co jak user załaduje stronę z formularzem rezerwacji bez podania danych i bez zalogowania?
     if 'user_id' not in session:
-        user_info = get_guest_user_info()
-        user_id = user_info['id']
+        try:
+            user_info = get_guest_user_info()
+            user_id = user_info['id']
+        except ValueError:
+            return jsonify({'error': 'User already exists'}), 409
+        except KeyError as e:
+            return jsonify({'error': f'Missing field: {str(e)}'}), 400
+        if not user_id:
+            return jsonify({'User information missing. Please enter you name, email and phone number to proceed'}), 403
     else:
         user_id = session['user_id']
     data = request.json
@@ -115,27 +126,22 @@ def make_reservation():
     try:
         reservation_data = {key: data[key] for key in data_needed}
         reservation = ReservationModel(**reservation_data)
+        reservation.validate_date(reservation.date)
+        reservation.validate_time(reservation.start_time, reservation.end_time)
+        reservation.validate_end_time(reservation.end_time)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
-    reservation_id = db.create_reservation(
-        reservation['date'],
-        reservation['start_time'],
-        reservation['end_time'],
-        reservation['number_of_people'],
-        user_id
-    )
+    new_reservation = Reservation(reservation.model_dump)
+    reservation_id = new_reservation.add_reservation()
     if reservation_id:
         return jsonify({'message': 'Reservation created successfully', 'reservation_id': reservation_id}), 201
     else:
+        reservation_fail_page()
         return jsonify({'error': 'Reservation creation failed'}), 500
 
-
-@app.route('/personal_data')
-def personal_page():
-    return render_template("personal_data.html")
 
 @app.route('/reservation_sent')
 def reservation_sent_page():
@@ -147,7 +153,15 @@ def reservation_fail_page():
 
 @app.route('/user_account')
 def user_account_page():
-    return render_template("user_account.html")
+    if 'user_id' not in session:
+        # Jeśli nie, wyrzucamy go do logowania
+        return redirect('/login') 
+    # 2. DATA FETCHING: Pobieramy dane o użytkowniku, żeby je wyświetlić
+    user_name = session['user_name']
+    user_info = User.display_user(user_name)
+
+    # 3. RENDERING: Przekazujemy dane do HTML
+    return render_template("user_account.html", user=user_info)
 
 @app.route('/reservation_accepted')
 def reservation_accepted_page():
