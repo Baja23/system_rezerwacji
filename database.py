@@ -207,7 +207,7 @@ def create_reservation(date, start_time, end_time, number_of_people, user_id):
         print("Reservation created successfully")
         return True
 
-
+#Zmiana nazwy do accept - Tycjan
 def modify_reservation_status(reservation_id, new_status):
     # connecting to the database
     with initialize_database() as conn:
@@ -223,6 +223,28 @@ def modify_reservation_status(reservation_id, new_status):
         conn.commit()
         print("Reservation status updated successfully")
         return True
+
+#Nowa funkcja z modyfikacją rezerwacji - Tycjan
+def modify_reservations(date, start_time, end_time, number_of_people, reservation_id):
+    # connecting to the database
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        # updating the reservation status
+        update_status = '''
+            UPDATE Reservation
+            SET
+                date = ?,
+                startTime = ?,
+                endTime = ?,
+                numberOfPeople = ?
+            WHERE id = ?
+        '''
+        cursor.execute(update_status, (date, start_time, end_time, number_of_people, reservation_id))
+        # saving changes and closing the connection
+        conn.commit()
+        print("Reservation status updated successfully")
+        return True
+
 
 
 #-------------------------------------MOJE FUNKCJE------------------------------------
@@ -247,7 +269,7 @@ def init_app(app):
     app.teardown_appcontext(close_db)
 
 
-def get_all_reservations(date=None, firstName=None, lastName=None, startTime=None, endTime=None, status=None):
+def get_all_reservations(date=None, firstName=None, lastName=None, startTime=None, endTime=None, status=None, restaurantTableId=None):
     base_query = """
         SELECT
             r.id,
@@ -257,7 +279,8 @@ def get_all_reservations(date=None, firstName=None, lastName=None, startTime=Non
             r.numberOfPeople AS numberOfPeople,
             u.firstName AS firstName,
             u.lastName AS lastName,
-            r.status AS status
+            r.status AS status,
+            r.restaurantTableId AS restaurantTableId
         FROM reservation r
         JOIN user u ON r.userId = u.id
         WHERE 1 = 1
@@ -288,10 +311,17 @@ def get_all_reservations(date=None, firstName=None, lastName=None, startTime=Non
         base_query += " AND r.status = ?"
         params.append(status)
 
+    if restaurantTableId:
+        base_query += " AND r.restaurantTableID = ?"
+        params.append(status)
+
     base_query += " ORDER BY r.date, r.startTime"
 
     rows = get_db().execute(base_query, params).fetchall()
     return [dict(row) for row in rows]
+
+
+
 
 def main():
     create_table()

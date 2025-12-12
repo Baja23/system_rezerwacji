@@ -102,7 +102,7 @@ def reservation_page():
     return render_template("reservation.html")
 
 
-@app.route('/api/reservation', methods=['POST'])
+@app.route('/api/reservations', methods=['POST'])
 def make_reservation():
     # co jak user załaduje stronę z formularzem rezerwacji bez podania danych i bez zalogowania?
     if 'user_id' not in session:
@@ -157,6 +157,10 @@ def reservation_accepted_page():
 def active_reservations_page():
     return render_template("active_reservations.html")
 
+@app.route('/new_reservations')
+def new_reservations_page():
+    return render_template("new_reservations.html")
+
 @app.route('/manager_account')
 def manager_account_page():
     return render_template("manager_account.html")
@@ -185,14 +189,71 @@ def list_reservations():
     startTime = request.args.get('startTime')
     endTime = request.args.get('endTime')
     status = request.args.get('status')
+    restaurantTableId = request.args.get('restaurantTableId')
 
 
     try:
-        rows = db.get_all_reservations(date=date, firstName=firstName, lastName=lastName, startTime=startTime, endTime=endTime, status=status)
+        rows = db.get_all_reservations(date=date, firstName=firstName, lastName=lastName, startTime=startTime, endTime=endTime, status=status, restaurantTableId=restaurantTableId)
         return jsonify(rows), 200
     except Exception:
         current_app.logger.exception("Błąd przy pobieraniu rezerwacji")
         return jsonify({'error': 'Could not fetch reservations'}), 500
+
+@app.route('/api/reservations/<int:reservation_id>/status', methods=['PUT'])
+def update_reservation_status(reservation_id):
+    data = request.json
+
+    if not data or 'status' not in data:
+        return jsonify({'error': 'Missing status'}), 400
+
+    new_status = data['status']
+
+    allowed_statuses = ['Accepted', 'Cancelled']
+    if new_status not in allowed_statuses:
+        return jsonify({'error': 'Invalid status'}), 400
+
+    try:
+        success = db.modify_reservation_status(reservation_id, new_status)
+        if not success:
+            return jsonify({'error': 'Reservation not found'}), 404
+
+        return jsonify({'message': f'Status updated to {new_status}'}), 200
+
+    except Exception:
+        current_app.logger.exception("Update reservation status failed")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+
+
+@app.route("/api/reservations/<int:reservation_id>", methods=["PUT"])
+def update_reservation(reservation_id):
+    data = request.json
+
+    date = data.get("date")
+    start_time = data.get("startTime")
+    end_time = data.get("endTime")
+    number_of_people = data.get("numberOfPeople")
+
+    if not all([date, start_time, end_time, number_of_people]):
+        return jsonify({"error": "Missing fields"}), 400
+
+    try:
+        db.modify_reservations(
+            date,
+            start_time,
+            end_time,
+            number_of_people,
+            reservation_id
+        )
+        return jsonify({"message": "Reservation updated"}), 200
+
+    except Exception:
+        current_app.logger.exception("Update reservation failed")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
