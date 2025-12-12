@@ -90,7 +90,7 @@ class Reservation:
         elif new_reservation_id == 2:
             print("No available tables found for the specified date and time.")
         return new_reservation_id
-    
+
     #modify reservation
     def modify_reservation_status(self):
         need_confirmation = db.display_reservation('status')
