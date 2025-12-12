@@ -19,7 +19,6 @@ class UserRegistrationModel(BaseModel):
         if not re.match(r'^[A-Za-z]+$', value):
             raise ValueError('Name must contain only letters')
         return value
-
     @field_validator('phone_number')
     @classmethod
     def validate_phone_number(cls, value: str) -> str:
@@ -67,7 +66,6 @@ class ReservationModel(BaseModel):
         except ValueError:
             raise ValueError('Date must be in DD-MM-YYYY format')
         return value
-
     @field_validator('start_time', 'end_time')
     @classmethod
     def validate_time(cls, value: str) -> str:
@@ -76,7 +74,6 @@ class ReservationModel(BaseModel):
         except ValueError:
             raise ValueError('Time must be in HH:MM format')
         return value
-
     @field_validator('end_time')
     @classmethod
     def validate_end_time(cls, value: str, info) -> str:

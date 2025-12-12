@@ -1,6 +1,17 @@
+<<<<<<< HEAD
+__pycache__
+dane.json
+dane2.json
+venv
+restauracja.db
+testing.py
+database.py
+restauracja copy.db
+=======
 restauracja.db
 __pycache__/
 venv/
 dane.json
 testing.py
 dane2.json
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
