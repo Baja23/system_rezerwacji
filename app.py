@@ -156,12 +156,7 @@ def user_account_page():
     if 'user_id' not in session:
         # Jeśli nie, wyrzucamy go do logowania
         return redirect('/login') 
-    # 2. DATA FETCHING: Pobieramy dane o użytkowniku, żeby je wyświetlić
-    user_name = session['user_name']
-    user_info = User.display_user(user_name)
-
-    # 3. RENDERING: Przekazujemy dane do HTML
-    return render_template("user_account.html", user=user_info)
+    return render_template("user_account.html")
 
 @app.route('/reservation_accepted')
 def reservation_accepted_page():
@@ -193,16 +188,8 @@ def password_recovery_page():
 
 @app.route('/api/reservations', methods=['GET'])
 def list_reservations():
-    date = request.args.get('date')
-    firstName = request.args.get('firstName')
-    lastName= request.args.get('lastName')
-    startTime = request.args.get('startTime')
-    endTime = request.args.get('endTime')
-    status = request.args.get('status')
-
-
     try:
-        rows = db.get_all_reservations(date=date, firstName=firstName, lastName=lastName, startTime=startTime, endTime=endTime, status=status)
+        rows = db.get_reservations()
         return jsonify(rows), 200
     except Exception:
         current_app.logger.exception("Błąd przy pobieraniu rezerwacji")
