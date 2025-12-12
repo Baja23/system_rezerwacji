@@ -91,8 +91,8 @@ def get_guest_user_info():
     data = request.json
     try:
         user = UserInfo(**data)
-        user.validate_name
-        user.validate_phone_number
+        user.validate_name(user.first_name, user.last_name)
+        user.validate_phone_number(user.phone_number)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
