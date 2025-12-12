@@ -69,12 +69,13 @@ class User:
     #delete user
 
 class Reservation:
-    def __init__(self, date, start_time, end_time, number_of_people, user_id):
+    def __init__(self, date, start_time, end_time, number_of_people, user_id, reservation_id=None):
         self.date = date
         self.start_time = start_time
         self.end_time = end_time
         self.number_of_people = number_of_people
         self.user_id = user_id
+        self.id = reservation_id
     
     #add reservation
     def add_reservation(self):
@@ -90,13 +91,20 @@ class Reservation:
         elif new_reservation_id == 2:
             print("No available tables found for the specified date and time.")
         return new_reservation_id
-
+    
     #modify reservation
-    def modify_reservation_status(self):
-        need_confirmation = db.display_reservation('status')
-
-    #delete reservation
-
+    def modify_reservation(self, attributes_to_change,):
+        # 1. Aktualizacja obiektu w Pythonie
+        for key, value in attributes_to_change.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        if self.id is None:
+            raise ValueError("Nie można modyfikować rezerwacji, która nie ma ID!")
+        else: 
+            return db.modify_reservation(
+                self.date, self.start_time, self.end_time, self.number_of_people, 
+                self.id
+            )
 #display user by role, returns a list of all users with that role
 def display_users_by_role(column):
     users_with_selected_role = db.get_users_by_role(user_type_id= int)

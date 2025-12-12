@@ -86,7 +86,7 @@ def personal_page():
     return render_template("personal_data.html")
 
 # route to get guest user info
-@app.route('/api/personal_data', methods=['GET'])
+@app.route('/api/personal_data', methods=['POST'])
 def get_guest_user_info():
     data = request.json
     try:
@@ -141,7 +141,31 @@ def make_reservation():
     else:
         reservation_fail_page()
         return jsonify({'error': 'Reservation creation failed'}), 500
+@app.route('/api/modify_reservation')
+def modify_reservation():
+    data = request.json
+    data_needed = ['date', 'start_time', 'end_time', 'number_of_people', 'reservation_id']
+    try:
+        reservation_data = {key: data[key] for key in data_needed}
+        reservation = ReservationModel(**reservation_data)
+        reservation.validate_date(reservation.date)
+        reservation.validate_time(reservation.start_time, reservation.end_time)
+        reservation.validate_end_time(reservation.end_time)
+    except ValidationError as e:
+        messages = "; ".join([err['msg'] for err in e.errors()])
+        return jsonify({'error': messages}), 400
+    except KeyError as e:
+        return jsonify({'error': f'Missing field: {str(e)}'}), 400
+    new_reservation = reservation.model_dump()
+    reservation_id = new_reservation.pop('reservation_id')
+    old_reservation = Reservation(db.get_reservation_by_id(reservation_id))
+    modification_confirmation = old_reservation.modify_reservation({key: new_reservation[key] for key in data_needed}, reservation_id)
+    if modification_confirmation:
+        return jsonify({'Reservation modified successfully.'}), 200
+    else:
+        return jsonify({'Reservation not found'}), 404
 
+@app.route('/api/delete_reservation')
 
 @app.route('/reservation_sent')
 def reservation_sent_page():

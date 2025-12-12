@@ -332,13 +332,24 @@ def modify_reservation_status(reservation_id, new_status):
             print(f"BŁĄD PYTHON: {e}")
             return False
 
+#get one reservation by id
+def get_reservation_by_id(reservation_id):
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        query = '''
+            SELECT * FROM Reservation WHERE id = ?;
+        '''
+        cursor.execute(query, (reservation_id))
+        selected_reservation = cursor.fetchone()
+    return selected_reservation
+
 #display reservation; returns a list of reservations
 def get_reservations():
     with initialize_database() as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         query = f'''
-            SELECT * FROM Reservation;
+            SELECT * FROM Reservation r LEFT JOIN User u ON r.userId = u.id;
         '''
         try:
             cursor.execute(query, )
@@ -350,32 +361,25 @@ def get_reservations():
             return 0
 
 #modify reservation returns True
-def modify_reservation(column, data, reservation_id):
-    with initialize_database as conn:
+def modify_reservation(date, start_time, end_time, number_of_people, reservation_id):
+    with initialize_database() as conn:
         cursor = conn.cursor()
         query = f'''
             UPDATE Reservation
-            SET {column} = ?
+            SET 
+            date = ?,
+            startTime = ?,
+            endTime = ?,
+            numberOfPeople = ?
             WHERE id = ?;
         '''
         try:
-            cursor.execute(query, (data, reservation_id, ))
+            cursor.execute(query, (date, start_time, end_time, number_of_people, reservation_id))
             conn.commit()
             print('Reservation modified successfully.')
             return True
-        except sqlite3.IntegrityError as e:
-            # To łapie błędy logiczne (Unique, Not Null)
-            print(f"BŁĄD INTEGRALNOŚCI: {e}")  
-            return False
-
         except sqlite3.Error as e:
-            # To łapie błędy składni SQL i inne techniczne
             print(f"BŁĄD TECHNICZNY SQL: {e}")  
-            return False
-
-        except Exception as e:
-            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
-            print(f"BŁĄD PYTHON: {e}")
             return False
 
 #delete reservation returns True
