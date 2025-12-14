@@ -9,7 +9,7 @@ class UserRegistrationModel(BaseModel):
     last_name: str = Field(...)
     email: EmailStr = Field(...)
     phone_number: str = Field(...)
-    user_name: str = Field(..., min_length=5)
+    user_name: str = Field(..., min_length=5)    
     password: str = Field(..., min_length=10)
     user_type_id: int = Field(...)
 
@@ -81,11 +81,11 @@ class ReservationModel(BaseModel):
     @classmethod
     def validate_date(cls, value: str) -> str:
         try:
-            reservation_date = datetime.datetime.strptime(value, '%d-%m-%Y').date()
+            reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
             if reservation_date <= datetime.date.today():
                 raise ValueError('Reservation date must be in the future')
         except ValueError:
-            raise ValueError('Date must be in DD-MM-YYYY format')
+            raise ValueError('Date must be in DD/MM/YYYY format')
         return value
     @field_validator('start_time', 'end_time')
     @classmethod
