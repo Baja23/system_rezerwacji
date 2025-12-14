@@ -12,3 +12,5 @@ venv/
 dane.json
 dane2.json
 additional_sql_scripts.ipnyb
+raport_bledow.txt
+comparison.py
