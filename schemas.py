@@ -81,13 +81,13 @@ class ReservationModel(BaseModel):
     @classmethod
     def validate_date(cls, value: str) -> str:
         try:
-            reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
-            if reservation_date <= datetime.date.today():
+            reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date() #dopisać, że data musi być co najmniej z 1 dniowym wyprzedzeniem
+            if reservation_date < datetime.date.today():
                 raise ValueError('Reservation date must be in the future')
         except ValueError:
             raise ValueError('Date must be in DD/MM/YYYY format')
         return value
-    @field_validator('start_time', 'end_time')
+    @field_validator('start_time', 'end_time') 
     @classmethod
     def validate_time(cls, value: str) -> str:
         try:
