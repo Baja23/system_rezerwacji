@@ -105,13 +105,19 @@ class ReservationModel(BaseModel):
     def validate_end_time(self) -> object:
         if not self.start_time or not self.end_time:
             return self
-        if isinstance(self.start_time, datetime.time):
-            self.start_time = datetime.datetime.strptime(self.start_time, '%H:%M').time()
-        elif isinstance(self.end_time, datetime.time):
-            self.end_time = datetime.datetime.strptime(self.end_time, '%H:%M').time()
+        try:
+            t_start = datetime.datetime.strptime(self.start_time, '%H:%M').time()
+            t_end = datetime.datetime.strptime(self.end_time, '%H:%M').time()
+        except TypeError:
+            # Zabezpieczenie: gdyby Pydantic jakimś cudem już zamienił to na time
+            t_start = self.start_time if isinstance(self.start_time, datetime.time) else self.start_time
+            t_end = self.end_time if isinstance(self.end_time, datetime.time) else self.end_time
+        except ValueError:
+            raise ValueError('Invalid time format. Use HH:MM')
+        
         dummy_date = datetime.datetime.now().date()
-        dt_start = datetime.datetime.combine(dummy_date, self.start_time)
-        dt_end = datetime.datetime.combine(dummy_date, self.end_time)
+        dt_start = datetime.datetime.combine(dummy_date, t_start)
+        dt_end = datetime.datetime.combine(dummy_date, t_end)
         duration = dt_end - dt_start
         if dt_end <= dt_start:
             raise ValueError('End time must be after start time')
