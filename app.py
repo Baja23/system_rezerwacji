@@ -32,8 +32,6 @@ def register():
     try:
         user_data = {key: data[key] for key in user_data_needed}
         user = UserRegistrationModel(**user_data)
-        user.validate_password(user.password)
-        user.validate_user_name(user.user_name)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
@@ -94,9 +92,6 @@ def get_guest_user_info():
     data = request.json
     try:
         user = UserInfo(**data)
-        user.validate_name(user.first_name)
-        user.validate_name(user.last_name)
-        user.validate_phone_number(user.phone_number)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
@@ -129,10 +124,6 @@ def make_reservation():
     try:
         reservation_data = {key: data[key] for key in data_needed}
         reservation = ReservationModel(**reservation_data)
-        reservation.validate_date(reservation.date)
-        reservation.validate_time(reservation.start_time)
-        reservation.validate_time(reservation.end_time)
-        reservation.validate_end_time(reservation.end_time)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400

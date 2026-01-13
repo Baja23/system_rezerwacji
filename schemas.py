@@ -105,11 +105,10 @@ class ReservationModel(BaseModel):
     def validate_end_time(self) -> object:
         if not self.start_time or not self.end_time:
             return self
-        try:
+        if isinstance(self.start_time, datetime.time):
             self.start_time = datetime.datetime.strptime(self.start_time, '%H:%M').time()
+        elif isinstance(self.end_time, datetime.time):
             self.end_time = datetime.datetime.strptime(self.end_time, '%H:%M').time()
-        except ValueError:
-            raise ValueError('Invalid time format. Use HH:MM')
         dummy_date = datetime.datetime.now().date()
         dt_start = datetime.datetime.combine(dummy_date, self.start_time)
         dt_end = datetime.datetime.combine(dummy_date, self.end_time)
