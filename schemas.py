@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field, EmailStr, field_validator, ValidationError
+from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
 import string
 import re
-import datetime
+from datetime import datetime, timedelta
 
 
 class UserRegistrationModel(BaseModel):
@@ -96,16 +96,24 @@ class ReservationModel(BaseModel):
             raise ValueError('Time must be in HH:MM format')
         return value
     
-    @field_validator('end_time')
+    @model_validator(mode='after')
     @classmethod
-    def validate_end_time(cls, value: str) -> str:
-        if start_time:
+    def validate_end_time(self) -> str:
+        if not start_time or not end_time:
+            return self
+        try:
             start_time = datetime.datetime.strptime(start_time, '%H:%M').time()
-            end_time = datetime.datetime.strptime(value, '%H:%M').time()
-            if end_time <= start_time:
-                raise ValueError('End time must be after start time')
-            elif end_time - start_time < datetime.timedelta(hours=1):
-                raise ValueError('Reservation must be at least 1 hour long')
-            elif end_time - start_time > datetime.timedelta(hours=4):
-                raise ValueError('Reservation cannot be longer than 4 hours')
-        return value
+            end_time = datetime.datetime.strptime(end_time, '%H:%M').time()
+        except ValueError:
+            raise ValueError('Invalid time format. Use HH:MM')
+        dummy_date = datetime.now().date()
+        dt_start = datetime.combine(dummy_date, start_time)
+        dt_end = datetime.combine(dummy_date, end_time)
+        duration = dt_end - dt_start
+        if dt_end <= dt_start:
+            raise ValueError('End time must be after start time')
+        if duration < timedelta(hours=1):
+            raise ValueError('Reservation must be at least 1 hour long')  
+        if duration > timedelta(hours=4):
+            raise ValueError('Reservation cannot be longer than 4 hours')
+        return self
