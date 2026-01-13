@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator, ValidationError
 import string
 import re
 import datetime
@@ -82,14 +82,19 @@ class ReservationModel(BaseModel):
     def validate_date(cls, value: str) -> str:
         try:
             reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date() 
-            if reservation_date <= datetime.date.today():
-                raise ValueError('Reservation date must be at least 1 day ahead')
         except ValueError:
             raise ValueError('Date must be in DD/MM/YYYY format')
+        
+        if reservation_date <= datetime.date.today():
+            raise ValueError('Reservation date must be at least 1 day ahead')
+
         return value
+    
     @field_validator('start_time', 'end_time') 
     @classmethod
     def validate_time(cls, value: str) -> str:
+        if isinstance(value, datetime.time):
+            return value.strftime('%H:%M')
         try:
             datetime.datetime.strptime(value, '%H:%M')
         except ValueError:
