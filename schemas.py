@@ -95,12 +95,12 @@ class ReservationModel(BaseModel):
         except ValueError:
             raise ValueError('Time must be in HH:MM format')
         return value
+    
     @field_validator('end_time')
     @classmethod
-    def validate_end_time(cls, value: str, info) -> str:
-        start_time_str = info.data.get('start_time')
-        if start_time_str:
-            start_time = datetime.datetime.strptime(start_time_str, '%H:%M').time()
+    def validate_end_time(cls, value: str) -> str:
+        if start_time:
+            start_time = datetime.datetime.strptime(start_time, '%H:%M').time()
             end_time = datetime.datetime.strptime(value, '%H:%M').time()
             if end_time <= start_time:
                 raise ValueError('End time must be after start time')
