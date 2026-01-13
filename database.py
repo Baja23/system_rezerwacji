@@ -260,14 +260,14 @@ def delete_user(user_id: int) -> bool:
             return False
 
 # reservation functions
-#add reservation, returns reservation id
-def create_reservation(date: str, start_time: str, end_time: str, number_of_people: int, user_id: int) -> int:
+#check for available table
+def check_for_available_tables(date: str, start_time: str, end_time: str, number_of_people: int) -> list[dict]:
     # connecting to the database
     with initialize_database() as conn:
         cursor = conn.cursor()
         # searching for a table with sufficient capacity
         capacity_search = '''
-            SELECT id FROM RestaurantTable
+            SELECT id, name FROM RestaurantTable
             WHERE capacity >= ?
         '''
         cursor.execute(capacity_search, (number_of_people,))
@@ -276,22 +276,28 @@ def create_reservation(date: str, start_time: str, end_time: str, number_of_peop
             print("No table with sufficient capacity found.")
             return None
         else:
-            sufficient_capacity_tables = {row['id'] for row in rows}
+            sufficient_capacity_tables = {row['id']: row['name'] for row in rows}
         # searching for taken tables at the specified date and time
         taken_tables_search = '''
             SELECT restaurantTableId FROM Reservation
-            WHERE date = ? AND (startTime < ? OR endTime > ?)
+            WHERE date = ? AND (startTime < ? AND endTime > ?)
             '''
         cursor.execute(taken_tables_search, (date, end_time, start_time))
         taken_rows = cursor.fetchall()
         taken_tables = {row['restaurantTableId'] for row in taken_rows}
         # finding available tables
-        available_tables = list(sufficient_capacity_tables - taken_tables)
+        available_tables = set(sufficient_capacity_tables.keys()) - taken_tables
         if not available_tables:
             print("No available tables found for the specified date and time.")
-            return None
-        # assigning the first available table
-        assigned_table_id = available_tables[0]
+            return []
+        else: 
+            return available_tables
+    
+#add reservation, returns reservation id
+def create_reservation(selected_table: int, date: str, start_time: str, end_time: str, number_of_people: int, user_id: int) -> int:
+    # connecting to the database
+    with initialize_database() as conn:
+        cursor = conn.cursor()
         # inserting the reservation into the Reservation table
         insert_reservation = '''
             INSERT INTO Reservation
@@ -304,7 +310,7 @@ def create_reservation(date: str, start_time: str, end_time: str, number_of_peop
             start_time,
             end_time,
             number_of_people,
-            assigned_table_id,
+            selected_table,
             user_id
         ))
         # saving changes and closing the connection

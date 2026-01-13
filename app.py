@@ -102,15 +102,16 @@ def get_guest_user_info():
         return jsonify({'error': messages}), 400
     new_user = user.model_dump()
     user_data = User(**new_user)
-    try:
-        user_id = user_data.save_guest_info()
-    except ValueError:
+    user_in_db = user_data.get_user_by_email()
+    if user_in_db == True:
         return jsonify({'error': 'User already exists'}), 409
-    if not user_id:
-        return jsonify({'error': 'Registration failed'}), 500
     else:
-        session['user_id'] = user_id
-    return jsonify({'id': user_id}), 201
+        session['first_name'] = user_data.first_name
+        session['last_name'] = user_data.last_name
+        session['email'] = user_data.email
+        session['phone_number'] = user_data.phone_number
+        session['user_type_id'] = user_data.user_type_id
+    return jsonify('User saved to session correctly'), 201
 
 
 @app.route('/reservation')
@@ -120,10 +121,9 @@ def reservation_page():
 
 @app.route('/api/reservation', methods=['POST'])
 def make_reservation():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Brak użytkownika w sesji'}), 400
-    else:
-        user_id = session['user_id']
+    if 'user_id'  in session or 'email' not in session:
+        return jsonify({'error': 'Brak użytkownika w sesji'}), 403
+    
     data = request.json
     data_needed = ['date', 'start_time', 'end_time', 'number_of_people']
     try:
@@ -139,9 +139,29 @@ def make_reservation():
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
     reservation = reservation.model_dump()
-    reservation['user_id'] = user_id
     new_reservation = Reservation(**reservation)
-    reservation_id = new_reservation.add_reservation()
+    available_tables = new_reservation.check_available_tables()
+    if available_tables == []:
+        return jsonify('No available tables in selected date.'), 409
+    else: 
+        session['date'] = new_reservation.date
+        session['start_time'] = new_reservation.start_time
+        session['end_time'] = new_reservation.end_time
+        session['number_of_people'] = new_reservation.number_of_people
+        return jsonify('Displaying available tables'), 200
+
+@app.route('/api/get_table', methods=['POST'])
+def get_table_save_reservation():
+    data = request.json
+    table_id = data['id']
+    if session['user_id']:
+        user_id = session['user_id']
+    elif session['email']:
+        guest_user = User(session['first_name'], session['last_name'], session['email'], session['phone_number'], session['user_type_id'])
+        user_id = guest_user.save_guest_info()
+    
+    new_reservation = Reservation(session['date'], session['start_time'], session['end_time'], session['number_of_people'], user_id)
+    reservation_id = new_reservation.add_reservation(table_id)
     if reservation_id:
         # wyslij_email(...)
         return jsonify({
@@ -235,7 +255,7 @@ def password_recovery_page():
 
 @app.route('/new_reservations')
 def new_reservations():
-    return render_template('new_reservation.html')
+    return render_template('new_reservations.html')
 
 
 @app.route('/api/reservations/<int:reservation_id>/status', methods=['PUT'])
