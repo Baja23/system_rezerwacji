@@ -130,7 +130,8 @@ def make_reservation():
         reservation_data = {key: data[key] for key in data_needed}
         reservation = ReservationModel(**reservation_data)
         reservation.validate_date(reservation.date)
-        reservation.validate_time(reservation.start_time, reservation.end_time)
+        reservation.validate_time(reservation.start_time)
+        reservation.validate_time(reservation.end_time)
         reservation.validate_end_time(reservation.end_time)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
@@ -171,7 +172,8 @@ def modify_reservation(reservation_id):
         reservation_data = {key: data[key] for key in data_needed}
         reservation = ReservationModel(**reservation_data)
         reservation.validate_date(reservation.date)
-        reservation.validate_time(reservation.start_time, reservation.end_time)
+        reservation.validate_time(reservation.start_time)
+        reservation.validate_time(reservation.end_time)
         reservation.validate_end_time(reservation.end_time)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
