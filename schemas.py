@@ -82,7 +82,7 @@ class ReservationModel(BaseModel):
     def validate_date(cls, value: str) -> str:
         try:
             reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date() 
-            if reservation_date < datetime.date.today():
+            if reservation_date <= datetime.date.today():
                 raise ValueError('Reservation date must be at least 1 day ahead')
         except ValueError:
             raise ValueError('Date must be in DD/MM/YYYY format')
@@ -97,18 +97,17 @@ class ReservationModel(BaseModel):
         return value
     
     @model_validator(mode='after')
-    @classmethod
-    def validate_end_time(self) -> str:
-        if not start_time or not end_time:
+    def validate_end_time(self) -> object:
+        if not self.start_time or not self.end_time:
             return self
         try:
-            start_time = datetime.datetime.strptime(start_time, '%H:%M').time()
-            end_time = datetime.datetime.strptime(end_time, '%H:%M').time()
+            self.start_time = datetime.datetime.strptime(self.start_time, '%H:%M').time()
+            self.end_time = datetime.datetime.strptime(self.end_time, '%H:%M').time()
         except ValueError:
             raise ValueError('Invalid time format. Use HH:MM')
         dummy_date = datetime.datetime.now().date()
-        dt_start = datetime.datetime.combine(dummy_date, start_time)
-        dt_end = datetime.datetime.combine(dummy_date, end_time)
+        dt_start = datetime.datetime.combine(dummy_date, self.start_time)
+        dt_end = datetime.datetime.combine(dummy_date, self.end_time)
         duration = dt_end - dt_start
         if dt_end <= dt_start:
             raise ValueError('End time must be after start time')
