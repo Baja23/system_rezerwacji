@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
 import string
 import re
-from datetime import datetime, timedelta
+import datetime
 
 
 class UserRegistrationModel(BaseModel):
@@ -81,9 +81,9 @@ class ReservationModel(BaseModel):
     @classmethod
     def validate_date(cls, value: str) -> str:
         try:
-            reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date() #dopisać, że data musi być co najmniej z 1 dniowym wyprzedzeniem
+            reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date() 
             if reservation_date < datetime.date.today():
-                raise ValueError('Reservation date must be in the future')
+                raise ValueError('Reservation date must be at least 1 day ahead')
         except ValueError:
             raise ValueError('Date must be in DD/MM/YYYY format')
         return value
@@ -106,14 +106,14 @@ class ReservationModel(BaseModel):
             end_time = datetime.datetime.strptime(end_time, '%H:%M').time()
         except ValueError:
             raise ValueError('Invalid time format. Use HH:MM')
-        dummy_date = datetime.now().date()
-        dt_start = datetime.combine(dummy_date, start_time)
-        dt_end = datetime.combine(dummy_date, end_time)
+        dummy_date = datetime.datetime.now().date()
+        dt_start = datetime.datetime.combine(dummy_date, start_time)
+        dt_end = datetime.datetime.combine(dummy_date, end_time)
         duration = dt_end - dt_start
         if dt_end <= dt_start:
             raise ValueError('End time must be after start time')
-        if duration < timedelta(hours=1):
+        if duration < datetime.timedelta(hours=1):
             raise ValueError('Reservation must be at least 1 hour long')  
-        if duration > timedelta(hours=4):
+        if duration > datetime.timedelta(hours=4):
             raise ValueError('Reservation cannot be longer than 4 hours')
         return self
