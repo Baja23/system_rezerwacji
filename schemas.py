@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, field_validator, ValidationError
+from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator, ValidationError
 import string
 import re
 import datetime
@@ -19,6 +19,7 @@ class UserRegistrationModel(BaseModel):
         if not re.match(r'^[A-Za-z]+$', value):
             raise ValueError('Name must contain only letters')
         return value
+
     @field_validator('phone_number')
     @classmethod
     def validate_phone_number(cls, value: str) -> str:
@@ -50,6 +51,28 @@ class UserRegistrationModel(BaseModel):
         return value
 
 
+class UserInfo(BaseModel):
+    first_name: str = Field(...)
+    last_name: str = Field(...)
+    email: EmailStr = Field(...)
+    phone_number: str = Field(...)
+    user_type_id: int = Field(...)
+
+    @field_validator('first_name', 'last_name')
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if not re.match(r'^[A-Za-z]+$', value):
+            raise ValueError('Name must contain only letters')
+        return value
+
+    @field_validator('phone_number')
+    @classmethod
+    def validate_phone_number(cls, value: str) -> str:
+        if not re.match(r'^\d{9}$', value):
+            raise ValueError('Phone number must be exactly 9 digits')
+        return value
+
+
 class ReservationModel(BaseModel):
     date: str = Field(...)
     start_time: str = Field(...)
@@ -60,31 +83,48 @@ class ReservationModel(BaseModel):
     @classmethod
     def validate_date(cls, value: str) -> str:
         try:
-            reservation_date = datetime.datetime.strptime(value, '%d-%m-%Y').date()
-            if reservation_date <= datetime.date.today():
-                raise ValueError('Reservation date must be in the future')
+            reservation_date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
         except ValueError:
-            raise ValueError('Date must be in DD-MM-YYYY format')
+            raise ValueError('Date must be in DD/MM/YYYY format')
+
+        if reservation_date <= datetime.date.today():
+            raise ValueError('Reservation date must be at least 1 day ahead')
+
         return value
+
     @field_validator('start_time', 'end_time')
     @classmethod
     def validate_time(cls, value: str) -> str:
+        if isinstance(value, datetime.time):
+            return value.strftime('%H:%M')
         try:
             datetime.datetime.strptime(value, '%H:%M')
         except ValueError:
             raise ValueError('Time must be in HH:MM format')
         return value
-    @field_validator('end_time')
-    @classmethod
-    def validate_end_time(cls, value: str, info) -> str:
-        start_time_str = info.data.get('start_time')
-        if start_time_str:
-            start_time = datetime.datetime.strptime(start_time_str, '%H:%M').time()
-            end_time = datetime.datetime.strptime(value, '%H:%M').time()
-            if end_time <= start_time:
-                raise ValueError('End time must be after start time')
-            elif end_time - start_time < datetime.timedelta(hours=1):
-                raise ValueError('Reservation must be at least 1 hour long')
-            elif end_time - start_time > datetime.timedelta(hours=4):
-                raise ValueError('Reservation cannot be longer than 4 hours')
-        return value
+
+    @model_validator(mode='after')
+    def validate_end_time(self) -> object:
+        if not self.start_time or not self.end_time:
+            return self
+        try:
+            t_start = datetime.datetime.strptime(self.start_time, '%H:%M').time()
+            t_end = datetime.datetime.strptime(self.end_time, '%H:%M').time()
+        except TypeError:
+            # Zabezpieczenie: gdyby Pydantic jakimś cudem już zamienił to na time
+            t_start = self.start_time if isinstance(self.start_time, datetime.time) else self.start_time
+            t_end = self.end_time if isinstance(self.end_time, datetime.time) else self.end_time
+        except ValueError:
+            raise ValueError('Invalid time format. Use HH:MM')
+
+        dummy_date = datetime.datetime.now().date()
+        dt_start = datetime.datetime.combine(dummy_date, t_start)
+        dt_end = datetime.datetime.combine(dummy_date, t_end)
+        duration = dt_end - dt_start
+        if dt_end <= dt_start:
+            raise ValueError('End time must be after start time')
+        if duration < datetime.timedelta(hours=1):
+            raise ValueError('Reservation must be at least 1 hour long')
+        if duration > datetime.timedelta(hours=4):
+            raise ValueError('Reservation cannot be longer than 4 hours')
+        return self

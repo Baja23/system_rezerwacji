@@ -9,7 +9,7 @@
 </head>
 <body>
 <header>
-    <a class="return" href="/index">Powrót</a>
+    <a class="return" href="/user_account">Powrót</a>
     <div class="top">
         <div class="logo">
             <img src="/static/images/Logo.png" alt="logo">
@@ -24,9 +24,6 @@
 <section id="reservation_container" class="reservation_container">
         <p class="name_3">Reservation</p>
             <form id="reservation_form">
-                <!-- Cały formularz wkładam w jeden kontainer, tak, aby jedna strona była po prawej,
-                a druga po lewej. Potem dzielę to na dodatkowe dwa kontainery, aby formularze w
-                jednym kontainerze były ustawione w kolumnach -->
                 <div class="form-column">
                     <label for="startTime">
                         <input type="date" id="date" required>
@@ -60,10 +57,12 @@
                     <label for="user_type">
                         <input type="hidden" id="user_type" value="1">
                     </label>
-                <button type="submit" id="reservation_button" class="reservation-button"><a href="/reservation_sent">Zarezerwuj stolik</a></button>
+                <<button type="submit" id="reservation_button" class="reservation-button">
+                    Zarezerwuj stolik
+                </button>
                 <p class="required-fields-text">*pola obowiązkowe</p>
             </form>
     </section>
-    <script src="/static/js/script.js"></script>
+    <script src="/static/js/reservation.js"></script>
 </body>
 </html>
