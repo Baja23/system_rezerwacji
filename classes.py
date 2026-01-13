@@ -2,7 +2,7 @@ import database as db
 from werkzeug.security import check_password_hash
 
 class User:
-    def __init__(self, first_name, last_name, email, phone_number, user_type_id, user_name, password, id =  None):
+    def __init__(self, first_name, last_name, email, phone_number, user_type_id, user_name = None, password = None, id =  None):
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
@@ -28,6 +28,21 @@ class User:
             self.user_type_id
             )
         return user_id
+    
+    def save_guest_info(self):
+        if db.get_user('email', self.email):
+            raise ValueError('Użytkownik już istnieje.')
+        user_id = db.add_user(
+            self.first_name,
+            self.last_name,
+            self.email,
+            self.phone_number,
+            None,
+            None,
+            self.user_type_id
+            )
+        return user_id
+
     @classmethod
     def login(cls, username, password):
         user = db.get_user('userName', username)
