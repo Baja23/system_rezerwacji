@@ -78,7 +78,13 @@ class User:
             return selected_user
         else: 
             raise ValueError ('Użytkownik nie istnieje.')
-
+        
+    def get_user_by_email(self): 
+        selected_user = db.get_user('email', self.email)
+        if selected_user:
+            return True
+        else: 
+            return False
     #reset password
     #modify user
     #delete user
@@ -92,19 +98,20 @@ class Reservation:
         self.user_id = user_id
         self.id = reservation_id
     
+    def check_available_tables(self) -> list[dict]:
+        available_tables = db.check_for_available_tables(self.date, self.start_time, self.end_time, self.number_of_people)
+        return available_tables
+
     #add reservation
-    def add_reservation(self):
+    def add_reservation(self, selected_table: int) -> int:
         new_reservation_id = db.create_reservation(
+            selected_table,
             self.date,
             self.start_time,
             self.end_time,
             self.number_of_people,
             self.user_id
         )
-        if new_reservation_id == 1:
-            print("No table with sufficient capacity found.")
-        elif new_reservation_id == 2:
-            print("No available tables found for the specified date and time.")
         return new_reservation_id
     
     #modify reservation
