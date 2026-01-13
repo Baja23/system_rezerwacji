@@ -121,7 +121,7 @@ def reservation_page():
 
 @app.route('/api/reservation', methods=['POST'])
 def make_reservation():
-    if 'user_id'  in session or 'email' not in session:
+    if not 'user_id' in session or 'email' not in session:
         return jsonify({'error': 'Brak użytkownika w sesji'}), 403
     
     data = request.json
@@ -148,12 +148,16 @@ def make_reservation():
         session['start_time'] = new_reservation.start_time
         session['end_time'] = new_reservation.end_time
         session['number_of_people'] = new_reservation.number_of_people
+        session['available_tables']
         return jsonify('Displaying available tables'), 200
 
 @app.route('/api/get_table', methods=['POST'])
 def get_table_save_reservation():
     data = request.json
     table_id = data['id']
+    if not table_id:
+        available_tables = session['available_tables']
+        table_id = list(available_tables)[0]
     if session['user_id']:
         user_id = session['user_id']
     elif session['email']:
