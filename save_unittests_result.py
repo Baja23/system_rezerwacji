@@ -1,7 +1,6 @@
 import unittest
 import os
-import unit_tests
-
+import unit_tests 
 
 def save_failures_to_file(filename="raport_bledow.txt"):
     suite = unittest.defaultTestLoader.loadTestsFromModule(unit_tests)
@@ -26,20 +25,19 @@ def save_failures_to_file(filename="raport_bledow.txt"):
             else:
                 error_type = "Inny Błąd"
                 error_message = last_line
-
+            
             test_name = str(test_case).split(' ')[0]
 
             f.write(f"{counter}.\n")
             f.write(f"nieudany test: {test_name}\n")
             f.write(f"*typ błędu: {error_type}\n")
             f.write(f"*informacja/komunikat błędu: {error_message}\n")
-            f.write("\n" + "-" * 40 + "\n\n")
-
+            f.write("\n" + "-"*40 + "\n\n")
+            
             counter += 1
 
     print(f"Znaleziono {len(all_problems)} błędów.")
     print(f"Raport zapisano w pliku: {filename}")
-
 
 if __name__ == "__main__":
     save_failures_to_file()
