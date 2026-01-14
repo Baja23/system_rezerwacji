@@ -57,8 +57,8 @@ class User:
         return self.user_type_id in [4, 5]
     
     #display user by username returns selected user
-    def display_user(object):
-        selected_user = db.get_user('userName', object.user_name)
+    def display_user(self):
+        selected_user = db.get_user('userName', self.user_name)
         if selected_user:
             return selected_user
         else: 

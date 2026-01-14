@@ -9,7 +9,7 @@ class UserRegistrationModel(BaseModel):
     last_name: str = Field(...)
     email: EmailStr = Field(...)
     phone_number: str = Field(...)
-    user_name: str = Field(..., min_length=5)
+    user_name: str = Field(..., min_length=5)    
     password: str = Field(..., min_length=10)
     user_type_id: int = Field(...)
 
