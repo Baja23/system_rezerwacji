@@ -93,7 +93,7 @@ class Reservation:
         return new_reservation_id
     
     #modify reservation
-    def modify_reservation(self, attributes_to_change,):
+    def modify_reservation(self, attributes_to_change):
         # 1. Aktualizacja obiektu w Pythonie
         for key, value in attributes_to_change.items():
             if hasattr(self, key):

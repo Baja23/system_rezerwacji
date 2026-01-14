@@ -60,7 +60,7 @@ def login_page():
     return render_template("login.html")
 
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/login', methods=['POST']) 
 def login():
     data = request.json
     logged_user = User.login(data.get('user_name'), data.get('password'))
@@ -81,11 +81,14 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
+#dopisać przechodzenie na odpowiednią stronę w zależności od property
+
 @app.route('/personal_data')
 def personal_page():
     return render_template("personal_data.html")
 
 # route to get guest user info
+#PRZETESTOWAĆ
 @app.route('/api/personal_data', methods=['POST'])
 def get_guest_user_info():
     data = request.json
@@ -97,8 +100,9 @@ def get_guest_user_info():
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
     user_data = User(user.model_dump())
-    user_data.save_user_info()
-    return user_data
+    user_id = user_data.save_user_info()
+    session['user_id'] = user_id
+    return jsonify({'id': user_id}), 201
 
 
 @app.route('/reservation')
@@ -108,17 +112,8 @@ def reservation_page():
 
 @app.route('/api/reservation', methods=['POST'])
 def make_reservation():
-    # co jak user załaduje stronę z formularzem rezerwacji bez podania danych i bez zalogowania?
     if 'user_id' not in session:
-        try:
-            user_info = get_guest_user_info()
-            user_id = user_info['id']
-        except ValueError:
-            return jsonify({'error': 'User already exists'}), 409
-        except KeyError as e:
-            return jsonify({'error': f'Missing field: {str(e)}'}), 400
-        if not user_id:
-            return jsonify({'User information missing. Please enter you name, email and phone number to proceed'}), 403
+        return jsonify({'error': 'Brak użytkownika w sesji'}), 400
     else:
         user_id = session['user_id']
     data = request.json
@@ -134,17 +129,22 @@ def make_reservation():
         return jsonify({'error': messages}), 400
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
-    new_reservation = Reservation(reservation.model_dump)
+    reservation = reservation.model_dump()
+    reservation['user_id'] = user_id
+    new_reservation = Reservation(reservation)
     reservation_id = new_reservation.add_reservation()
     if reservation_id:
-        return jsonify({'message': 'Reservation created successfully', 'reservation_id': reservation_id}), 201
+        jsonify({'message': 'Reservation created successfully', 'reservation_id': reservation_id}), 201
+        #dopisać powiadomienie email
+        return render_template("reservation_accepted.html")
     else:
-        reservation_fail_page()
-        return jsonify({'error': 'Reservation creation failed'}), 500
-@app.route('/api/modify_reservation')
-def modify_reservation():
+        jsonify({'error': 'Reservation creation failed'}), 500
+        return render_template("reservation_fail.html")
+    
+@app.route('/api/reservations/<int:reservation_id>', methods=['PUT']) #dodanie reservation id do new_reservation
+def modify_reservation(reservation_id):
     data = request.json
-    data_needed = ['date', 'start_time', 'end_time', 'number_of_people', 'reservation_id']
+    data_needed = ['date', 'start_time', 'end_time', 'number_of_people']
     try:
         reservation_data = {key: data[key] for key in data_needed}
         reservation = ReservationModel(**reservation_data)
@@ -157,7 +157,6 @@ def modify_reservation():
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
     new_reservation = reservation.model_dump()
-    reservation_id = new_reservation.pop('reservation_id')
     old_reservation = Reservation(db.get_reservation_by_id(reservation_id))
     modification_confirmation = old_reservation.modify_reservation({key: new_reservation[key] for key in data_needed}, reservation_id)
     if modification_confirmation:
@@ -167,11 +166,11 @@ def modify_reservation():
 
 @app.route('/api/delete_reservation')
 
-@app.route('/reservation_sent')
+@app.route('/reservation_sent') #dopisać funkcję, która zwraca jsona z data: DD/MM/YYYY, godzina: rozpoczęcia-zakończenia, ilość osób: X; 
 def reservation_sent_page():
     return render_template("reservation_accepted.html")
 
-@app.route('/reservation_fail')
+@app.route('/reservation_fail') #połączyć z ponownym odpaleniem funkcji add reservation
 def reservation_fail_page():
     return render_template("reservation_fail.html")
 
@@ -186,7 +185,7 @@ def user_account_page():
 def reservation_accepted_page():
     return render_template("reservation_accepted.html")
 
-@app.route('/active_reservations')
+@app.route('/active_reservations') 
 def active_reservations_page():
     return render_template("active_reservations.html")
 
@@ -205,6 +204,14 @@ def rules_page():
 @app.route('/password_recovery')
 def password_recovery_page():
     return render_template("password_recovery.html")
+
+@app.route('/new_reservations')
+def new_reservations():
+    return render_template('new_reservation.html')
+
+# napisać funkcję, która przyjmuje reservation_id oraz stringa Accepted lub Cancelled
+@app.route('/api/reservations/<int:reservation_id>/status', methods=['PUT'])
+def modify_reservation_status(reservation_id):
 
 #-------------------------------------MOJE-------------------------------
 
