@@ -8,6 +8,7 @@ appcomparable.py
 classes_check.py
 classes_comp.py
 comparison.py
+__pycache__
 dane.json
 dane2.json
 database.py
