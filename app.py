@@ -1,12 +1,17 @@
-from flask import Flask, request, jsonify, session, render_template, current_app, redirect
+from flask import Flask, request, jsonify, session, render_template, current_app, redirect, url_for
 import database as db
 from werkzeug.security import check_password_hash
 from schemas import UserRegistrationModel, ValidationError, ReservationModel, UserInfo
 from classes import User, Reservation
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 
+@app.before_request
+def make_session_permanent():
+    session.modified = True
 
 @app.route('/index')
 def index_page():
@@ -63,10 +68,12 @@ def login():
     data = request.json
     logged_user = User.login(data.get('user_name'), data.get('password'))
     if logged_user:
+        session.clear()
         session['user_id'] = logged_user.id
         session['user_name'] = logged_user.user_name
         session['user_type_id'] = logged_user.user_type_id
         target_url = '/user_account'
+        session.permanent = True
         if session['user_type_id'] == 3:
             target_url = '/waiter_account'
         elif session['user_type_id'] == 4 or session['user_type_id'] == 5:
@@ -79,7 +86,10 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
-#dopisać przechodzenie na odpowiednią stronę w zależności od property
+@app.route('/logout_button')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/personal_data')
 def personal_page():
@@ -138,8 +148,7 @@ def make_reservation():
         session['start_time'] = new_reservation.start_time
         session['end_time'] = new_reservation.end_time
         session['number_of_people'] = new_reservation.number_of_people
-        session['available_tables'] = available_tables
-        return jsonify('Displaying available tables'), 200
+        return jsonify({'available_tables': available_tables}), 200
 
 @app.route('/api/get_table', methods=['POST'])
 def get_table_save_reservation():
