@@ -39,7 +39,7 @@ def create_table():
                 firstName TEXT NOT NULL,
                 lastName TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
-                phoneNumber TEXT NOT NULL,
+                phoneNumber TEXT UNIQUE NOT NULL,
                 userName TEXT UNIQUE,
                 password TEXT,
                 userTypeId INTEGER NOT NULL,
@@ -68,8 +68,8 @@ def create_table():
         print("Tables created successfully")
 
 
-# user functions
-def add_user(first_name, last_name, email, phone_number, user_name, password, user_type_id):
+# user functions returns user_id
+def add_user(first_name: str, last_name: str, email: str, phone_number: str, user_name: str, password: str, user_type_id: int) -> int:
     # connecting to the database
     try:
         with initialize_database() as conn:
@@ -81,17 +81,28 @@ def add_user(first_name, last_name, email, phone_number, user_name, password, us
                 VALUES
                 (?,?,?,?,?,?,?)
                 '''
-            # encrypting the password
-            hashed_password = generate_password_hash(password, method='scrypt')
-            cursor.execute(insert_user, (
-                first_name,
-                last_name,
-                email,
-                phone_number,
-                user_name,
-                hashed_password,
-                user_type_id
-            ))
+            if password is not None and user_name is not None:
+                # encrypting the password
+                hashed_password = generate_password_hash(password, method='scrypt')
+                cursor.execute(insert_user, (
+                    first_name,
+                    last_name,
+                    email,
+                    phone_number,
+                    user_name,
+                    hashed_password,
+                    user_type_id
+                ))
+            else:
+                cursor.execute(insert_user, (
+                    first_name,
+                    last_name,
+                    email,
+                    phone_number,
+                    None,
+                    None,
+                    user_type_id
+                ))
             # saving changes and closing the connection
             conn.commit()
             print("User added successfully")
@@ -100,67 +111,158 @@ def add_user(first_name, last_name, email, phone_number, user_name, password, us
         # handling exceptions
     except sqlite3.IntegrityError as e:
         # To łapie błędy logiczne (Unique, Not Null)
-        print(f"BŁĄD INTEGRALNOŚCI: {e}")  # <--- TO JEST KLUCZOWE!
-        return False
+        print(f"BŁĄD INTEGRALNOŚCI: {e}")
+        return None
 
     except sqlite3.Error as e:
         # To łapie błędy składni SQL i inne techniczne
-        print(f"BŁĄD TECHNICZNY SQL: {e}")  # <--- TO TEŻ!
-        return False
+        print(f"BŁĄD TECHNICZNY SQL: {e}")
+        return None
 
     except Exception as e:
         # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
         print(f"BŁĄD PYTHON: {e}")
-        return False
+        return None
 
+#getting user by any user data; returns a user
+def get_user(column: str, user_data: str) -> dict:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        user = f'''
+            SELECT * FROM User WHERE {column} = ?;
+        '''
+        try:
+            cursor.execute(user, (user_data,))
+            user = cursor.fetchone()
+            return user
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return None
 
-def get_user_by_username(user_name):
-    # connecting to the database
-    conn = initialize_database()
-    cursor = conn.cursor()
-    # retrieving user by username
-    user = '''
-        SELECT * FROM User WHERE userName = ?
-    '''
-    cursor.execute(user, (user_name,))
-    user = cursor.fetchone()
-    conn.close()
-    return user
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return None
 
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return None
 
-def get_user_by_email(email):
-    # connecting to the database
-    conn = initialize_database()
-    cursor = conn.cursor()
-    # retrieving user by email
-    user = '''
-        SELECT * FROM User WHERE email = ?
-    '''
-    cursor.execute(user, (email,))
-    user = cursor.fetchone()
-    return user
+#display a list of users of a certain type; returns a list of users
+def get_users_by_role(user_type_id: int) -> list:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        query = '''
+            SELECT * FROM User WHERE userTypeId = ?;
+        '''
+        try:
+            cursor.execute(query, (user_type_id, ))
+            user_list = cursor.fetchall()
+            return user_list
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return None
 
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return None
 
-def get_user_by_phone_number(phone_number):
-    # connecting to the database
-    conn = initialize_database()
-    cursor = conn.cursor()
-    # retrieving user by phone number
-    user = '''
-        SELECT * FROM User WHERE phoneNumber = ?
-    '''
-    cursor.execute(user, (phone_number,))
-    user = cursor.fetchone()
-    return user
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return None
 
-#reset password by user_username
+#reset password by user_id, returns True
+def reset_password(user_id: int, password: str) -> bool:
+    with initialize_database as conn:
+        cursor = conn.cursor()
+        query = '''
+            UPDATE User
+            SET password = ?
+            WHERE id = ?;
+        '''
+        # encrypting the password
+        hashed_password = generate_password_hash(password, method='scrypt')
+        try:
+            cursor.execute(query, (hashed_password, user_id, ))
+            cursor.commit()
+            print('Password changed successfully')
+            return True
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return False
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return False
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return False
 
-#modify user by user_name
+#modify user by user_name returns True
+def modify_user(user_id: int, column: str, user_data: str) -> bool:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        sql_query = f'''
+            UPDATE User
+            SET {column} = ?
+            WHERE id = ?;
+        '''
+        try:
+            cursor.execute(sql_query, (user_data, user_id, ))
+            conn.commit()
+            print('User modified successfully')
+            return True
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return False
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return False
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return False
 
-#delete user by user_name
+#delete user by id returns True
+def delete_user(user_id: int) -> bool:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        query = '''
+            DELETE FROM User WHERE id = ?;
+        '''
+        try:
+            cursor.execute(query, (user_id, ))
+            conn.commit()
+            print('User deleted successfully')
+            return True
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return False
+
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return False
+
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return False
+
 
 # reservation functions
-def create_reservation(date, start_time, end_time, number_of_people, user_id):
+#add reservation, returns reservation id
+def create_reservation(date: str, start_time: str, end_time: str, number_of_people: int, user_id: int) -> int:
     # connecting to the database
     with initialize_database() as conn:
         cursor = conn.cursor()
@@ -173,7 +275,7 @@ def create_reservation(date, start_time, end_time, number_of_people, user_id):
         rows = cursor.fetchall()
         if not rows:
             print("No table with sufficient capacity found.")
-            return False
+            return None
         else:
             sufficient_capacity_tables = {row['id'] for row in rows}
         # searching for taken tables at the specified date and time
@@ -188,7 +290,7 @@ def create_reservation(date, start_time, end_time, number_of_people, user_id):
         available_tables = list(sufficient_capacity_tables - taken_tables)
         if not available_tables:
             print("No available tables found for the specified date and time.")
-            return False
+            return None
         # assigning the first available table
         assigned_table_id = available_tables[0]
         # inserting the reservation into the Reservation table
@@ -209,9 +311,10 @@ def create_reservation(date, start_time, end_time, number_of_people, user_id):
         # saving changes and closing the connection
         conn.commit()
         print("Reservation created successfully")
-        return True
+        new_reservation_id = cursor.lastrowid
+        return new_reservation_id
 
-def modify_reservation_status(reservation_id, new_status):
+def modify_reservation_status(reservation_id: int, new_status: str) -> bool:
     # connecting to the database
     with initialize_database() as conn:
         cursor = conn.cursor()
@@ -221,12 +324,101 @@ def modify_reservation_status(reservation_id, new_status):
             SET status = ?
             WHERE id = ?
         '''
-        cursor.execute(update_status, (new_status, reservation_id))
-        # saving changes and closing the connection
-        conn.commit()
-        print("Reservation status updated successfully")
-        return True
+        try:
+            cursor.execute(update_status, (new_status, reservation_id))
+            conn.commit()
+            print("Reservation status updated successfully")
+            return True
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return False
 
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return False
+
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return False
+
+#get one reservation by id
+def get_reservation_by_id(reservation_id: int) -> dict:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        query = '''
+            SELECT * FROM Reservation WHERE id = ?;
+        '''
+        cursor.execute(query, (reservation_id))
+        selected_reservation = cursor.fetchone()
+    return selected_reservation
+
+#display reservation; returns a list of reservations
+def get_reservations() -> list:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        query = f'''
+            SELECT * FROM Reservation r LEFT JOIN User u ON r.userId = u.id;
+        '''
+        try:
+            cursor.execute(query, )
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+            return None
+
+#modify reservation returns True
+def modify_reservation(date: str, start_time: str, end_time: str, number_of_people: int, reservation_id: int) -> bool:
+    with initialize_database() as conn:
+        cursor = conn.cursor()
+        query = f'''
+            UPDATE Reservation
+            SET 
+            date = ?,
+            startTime = ?,
+            endTime = ?,
+            numberOfPeople = ?
+            WHERE id = ?;
+        '''
+        try:
+            cursor.execute(query, (date, start_time, end_time, number_of_people, reservation_id))
+            conn.commit()
+            print('Reservation modified successfully.')
+            return True
+        except sqlite3.Error as e:
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return False
+
+#delete reservation returns True
+def delete_reservation(reservation_id: int) -> bool:
+    with initialize_database as conn:
+        cursor = conn.cursor()
+        query = '''
+            DELETE FROM Reservation WHERE id = ?;
+        '''
+        try:
+            cursor.execute(query, (reservation_id, ))
+            cursor.commit()
+            print('Reservation deleted successfully')
+            return True
+        except sqlite3.IntegrityError as e:
+            # To łapie błędy logiczne (Unique, Not Null)
+            print(f"BŁĄD INTEGRALNOŚCI: {e}")
+            return False
+
+        except sqlite3.Error as e:
+            # To łapie błędy składni SQL i inne techniczne
+            print(f"BŁĄD TECHNICZNY SQL: {e}")
+            return False
+
+        except Exception as e:
+            # To łapie błędy Pythona (np. literówka w nazwie zmiennej)
+            print(f"BŁĄD PYTHON: {e}")
+        return False
 
 def main():
     create_table()

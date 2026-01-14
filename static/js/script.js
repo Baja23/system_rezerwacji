@@ -141,8 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Funkcja ładująca rezerwacje
 async function loadReservations() {
-    console.log("loadReservations: START");
-
     const dateInput = document.getElementById("filter-date")?.value;
     const firstName = document.getElementById("filter-firstName")?.value;
     const lastName = document.getElementById("filter-lastName")?.value;
@@ -158,88 +156,65 @@ async function loadReservations() {
 
     let url = "/api/reservations";
     const params = [];
-    if (date) params.push(`date=${encodeURIComponent(date)}`);
-    if (firstName) params.push(`firstName=${encodeURIComponent(firstName)}`);
-    if (lastName) params.push(`lastName=${encodeURIComponent(lastName)}`);
-    if (startTime) params.push(`startTime=${encodeURIComponent(startTime)}`);
-    if (endTime) params.push(`endTime=${encodeURIComponent(endTime)}`);
-    if (status) params.push(`status=${encodeURIComponent(status)}`);
+    if (date) params.push(`date=${date}`);
+    if (firstName) params.push(`firstName=${firstName}`);
+    if (lastName) params.push(`lastName=${lastName}`);
+    if (startTime) params.push(`startTime=${startTime}`);
+    if (endTime) params.push(`endTime=${endTime}`);
+    if (status) params.push(`status=${status}`);
 
-    if (params.length > 0) {
-        url += "?" + params.join("&");
-    }
+    if (params.length) url += "?" + params.join("&");
 
-    console.log("FETCH URL =", url);
-
-    let res;
-    try {
-        res = await fetch(url);
-    } catch (e) {
-        console.error("Błąd fetch:", e);
-        return;
-    }
-
-    console.log("HTTP status:", res.status);
-
-    if (!res.ok) {
-        console.error("fetch not OK");
-        return;
-    }
-
-    let data;
-    try {
-        data = await res.json();
-    } catch (e) {
-        console.error("JSON parse error:", e);
-        return;
-    }
-
-    console.log("DATA RECEIVED:", data);
+    const res = await fetch(url);
+    const data = await res.json();
 
     const tbody = document.querySelector("#reservations-table tbody");
-    if (!tbody) {
-        console.error("Nie znaleziono tbody");
-        return;
-    }
-
     tbody.innerHTML = "";
-    if (!Array.isArray(data)) {
-        console.error("Data nie jest tablicą");
-        return;
-    }
 
-    console.log("Data length:", data.length);
+    // 🔥 RÓŻNICA ZALEŻNA OD STRONY
+    const rows =
+        pageType === "new"
+            ? data.filter(r => r.status === "Awaiting confirmation")
+            : data;
 
-    data.forEach((r, index) => {
-        console.log("Row", index, r);
-
+    rows.forEach(r => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${r.id}</td>
-          <td>${r.firstName}</td>
-          <td>${r.lastName}</td>
-          <td>${r.date}</td>
-          <td>${r.startTime}</td>
-          <td>${r.endTime}</td>
-          <td>${r.numberOfPeople}</td>
-          <td>${r.status}</td>
-          <td class="actions-cell">
-            <button class="action-btn edit-btn" data-id="${r.id}">Edytuj</button>
-            <button class="action-btn cancel-btn" data-id="${r.id}">Anuluj</button>
-          </td>
-        `;
+
+        if (pageType === "new") {
+            tr.innerHTML = `
+              <td>${r.id}</td>
+              <td>${r.firstName}</td>
+              <td>${r.lastName}</td>
+              <td>${r.date}</td>
+              <td>${r.startTime}</td>
+              <td>${r.endTime}</td>
+              <td>${r.numberOfPeople}</td>
+              <td>${r.status}</td>
+              <td>
+                <button class="accept-btn" data-id="${r.id}">Akceptuj</button>
+                <button class="cancel-btn" data-id="${r.id}">Odrzuć</button>
+              </td>
+            `;
+        } else {
+            tr.innerHTML = `
+              <td>${r.id}</td>
+              <td>${r.restaurantTableId}</td>
+              <td>${r.firstName}</td>
+              <td>${r.lastName}</td>
+              <td>${r.date}</td>
+              <td>${r.startTime}</td>
+              <td>${r.endTime}</td>
+              <td>${r.numberOfPeople}</td>
+              <td>${r.status}</td>
+              <td>
+                <button class="edit-btn" data-id="${r.id}">Edytuj</button>
+                <button class="cancel-btn" data-id="${r.id}">Anuluj</button>
+              </td>
+            `;
+        }
+
         tbody.appendChild(tr);
-
-        console.log("Row appended", index);
     });
-
-    console.log("loadReservations: END");
-}
-
-function convertDate(dateStr) {
-    // zamienia 20-12-2025 → 2025-12-20 (format input[type=date])
-    const [d, m, y] = dateStr.split("-");
-    return `${y}-${m}-${d}`;
 }
 
 document.querySelector("#reservations-table").addEventListener("click", (e) => {
@@ -284,5 +259,35 @@ document.getElementById("edit-form").addEventListener("submit", async (e) => {
         loadReservations(); // odśwież tabelę
     } else {
         alert("Błąd podczas zapisywania");
+    }
+});
+
+document.addEventListener("click", async (e) => {
+    const id = e.target.dataset.id;
+    if (!id) return;
+
+    // NOWE REZERWACJE
+    if (pageType === "new") {
+        if (e.target.classList.contains("accept-btn")) {
+            await updateStatus(id, "Accepted");
+            loadReservations();
+        }
+        if (e.target.classList.contains("cancel-btn")) {
+            if (!confirm("Odrzucić rezerwację?")) return;
+            await updateStatus(id, "Cancelled");
+            loadReservations();
+        }
+    }
+
+    // BIEŻĄCE REZERWACJE
+    if (pageType === "current") {
+        if (e.target.classList.contains("edit-btn")) {
+            openEditModal(id);
+        }
+        if (e.target.classList.contains("cancel-btn")) {
+            if (!confirm("Anulować rezerwację?")) return;
+            await updateStatus(id, "Cancelled");
+            loadReservations();
+        }
     }
 });

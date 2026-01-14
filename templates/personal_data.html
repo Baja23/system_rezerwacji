@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dane osobowe</title>
     <link rel="stylesheet" href="/static/css/main.css">
-    <link rel="stylesheet" href="/static/css/login_panels.css">
+    <link rel="stylesheet" href="/static/css/guest_reservation.css">
 </head>
 <body>
     <header>
@@ -22,39 +22,38 @@
             </div>
     </header>
 
-    <section id="registration_container" class="registration_container">
-        <p class="name_3">Rejestracja</p>
-            <form id="register_form">
-                <div class="form-container">
-                    <div class="form-column">
-                        <label for="first_name">
-                            <input type="text" id="first_name" placeholder="Imię..." required>
-                            <p class="form-template">Imię*</p>
-                        </label>
-
-                        <label for="email">
-                            <input type="email" id="email" placeholder="Email..." required>
-                            <p class="form-template">Email*</p>
-                        </label>
-                    </div>
-                    <div class="form-column">
-                        <label for="last_name">
-                            <input type="text" id="last_name" placeholder="Nazwisko..." required>
-                            <p class="form-template">Nazwisko*</p>
-                        </label>
-                        <label for="phone_number">
-                            <input type="number" id="phone_number" placeholder="Numer telefonu..." required>
-                            <p class="form-template">Numer telefonu*</p>
-                        </label>
-                        </div>
-                    </div>
-                    <label for="user_type">
-                        <input type="hidden" id="user_type" value="1">
+    <form for id="reservation_form" method="post">
+        <section id="step1" class="step active">
+            <p class="name_3">Dane osobowe</p>
+            <div class="form-container1">
+                <div class="form-column1">
+                    <label>
+                        <input type="text" name="first_name" required>
+                        <p class="form-template">Imię*</p>
                     </label>
-                <button type="submit" id="next_button" class="next-button"><a href="/reservation">Dalej</a></button>
-                <p class="required-fields-text">*pola obowiązkowe</p>
-            </form>
-    </section>
-    <script src="/static/script.js"></script>
+                    <label>
+                        <input type="email" name="email" required>
+                        <p class="form-template">Email*</p>
+                    </label>
+                </div>
+
+                <div class="form-column1">
+                    <label>
+                        <input type="text" name="last_name" required>
+                        <p class="form-template">Nazwisko*</p>
+                    </label>
+
+                    <label>
+                        <input type="number" name="phone_number" required>
+                        <p class="form-template">Numer telefonu*</p>
+                    </label>
+                </div>
+            </div>
+            <button id="go_to_reservation" type="button">Dalej</button>
+                Dalej
+            </button>
+        </section>
+</form>
+<script src="/static/js/personal_data.js"></script>
 </body>
 </html>

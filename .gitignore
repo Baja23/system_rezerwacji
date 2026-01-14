@@ -1,17 +1,33 @@
 <<<<<<< HEAD
-__pycache__
+pycache
+pycache/
+app (nowe).py
+app2.py
+appcheck.py
+app_copy.py
+appcomparable.py
+classes_check.py
+classes_comp.py
+comparison.py
 dane.json
 dane2.json
-venv
-restauracja.db
-testing.py
 database.py
+database_comp.py
+database_copy.py
+dbcheck.py
+guest_reservation(copy).html
+guest_reservation(old, personal_data).js
+new_reservations(copy).js
+old.css
+oldscript.js
+reservation(old).js
 restauracja copy.db
-=======
 restauracja.db
-__pycache__/
-venv/
-dane.json
+schemas(copy).py
+schemas_check.py
+schemas_comp.py
+temporary.py
 testing.py
-dane2.json
+venv
+venv/
 >>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
