@@ -15,6 +15,7 @@ database.py
 database_comp.py
 database_copy.py
 dbcheck.py
+.env
 guest_reservation(copy).html
 guest_reservation(old, personal_data).js
 new_reservations(copy).js
