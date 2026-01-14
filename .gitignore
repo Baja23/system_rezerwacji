@@ -29,4 +29,8 @@ temporary.py
 testing.py
 venv
 venv/
+__pycache__/
+venv/
+dane.json
+dane2.json
 additional_sql_scripts.ipnyb
