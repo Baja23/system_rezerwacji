@@ -43,6 +43,31 @@
                         <input type="number" id="number_of_people" required>
                         <p class="form-template">Ilość ludzi*</p>
                     </label>
+                    <div class="form-column">
+
+                        <button type="button" id="tableID-button" class="tableID-button">
+                            Znajdź stoliki
+                        </button>
+                        <div class="table-scroll">
+                        <section id="table_selection" class="table_selection">
+                          <table id="table-id-selection" class="table-id-selection">
+                            <thead>
+                              <tr>
+                                <th>Stolik</th>
+                                <th>Numer stolika</th>
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
+                        </div>
+                        <div class="form-container">
+                            <label for="endTime">
+                                <input type="number" id="tableID" required>
+                                <p class="form-template">Numer stolika*</p>
+
+                            </label>
+                        </div>
+                    </div>
                     <div class="form-container">
                         <label for="accept_rules" class="checkbox-row">
                             <input type="checkbox" id="accept_rules" required>
@@ -53,16 +78,16 @@
                             <p>Wyrażam zgodę na kontakt telefoniczny bądź mailowy w celu obsługi mojej rezerwacji.</p>
                         </label>
                     </div>
-                </div>
                     <label for="user_type">
-                        <input type="hidden" id="user_type" value="1">
+                        <input type="hidden" id="user_type" value="2">
                     </label>
-                <<button type="submit" id="reservation_button" class="reservation-button">
+                    <button type="submit" id="reservation_button" class="reservation-button">
                     Zarezerwuj stolik
-                </button>
+                    </button>
                 <p class="required-fields-text">*pola obowiązkowe</p>
             </form>
     </section>
     <script src="/static/js/reservation.js"></script>
 </body>
 </html>
+

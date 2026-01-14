@@ -106,6 +106,45 @@ a {
     border: 3px solid black;
 }
 
+.tableID-button {
+    display: block;
+    margin: 70px auto 0 auto;
+    font-family: "PlayfairDisplay";
+    width: 100%;
+    max-width: 300px;
+    height: 100%;
+    max-height: 50px;
+    padding: 0;
+    line-height: 50px;
+    font-size: 25px;
+    text-align: center;
+    border: 3px solid black;
+}
+
+
+.table-scroll {
+  width: 100%;
+  max-height: 320px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* płynne przewijanie na iOS */
+}
+
+.table-id-selection {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  max-width: 650px;
+  margin-bottom: 20px;
+
+}
+
+.table-id-selection th,
+.table-id-selection td {
+  border: 2px solid #000;
+  font-family: "PlayfairDisplay";
+  padding: 12px;
+}
+
 /* ------ */
 
 
