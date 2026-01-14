@@ -291,7 +291,7 @@ def check_for_available_tables(date: str, start_time: str, end_time: str, number
             print("No available tables found for the specified date and time.")
             return []
         else: 
-            return available_tables
+            return list(available_tables)
     
 #add reservation, returns reservation id
 def create_reservation(selected_table: int, date: str, start_time: str, end_time: str, number_of_people: int, user_id: int) -> int:

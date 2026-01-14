@@ -90,7 +90,7 @@ class User:
     #delete user
 
 class Reservation:
-    def __init__(self, date, start_time, end_time, number_of_people, user_id, reservation_id=None):
+    def __init__(self, date, start_time, end_time, number_of_people, user_id=None, reservation_id=None):
         self.date = date
         self.start_time = start_time
         self.end_time = end_time

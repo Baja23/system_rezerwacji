@@ -15,7 +15,7 @@ def index_page():
 
 @app.route('/')
 def index():
-    is_logged_in = 'user_id' in session
+    is_logged_in = 'user_id' in session or 'email' in session
     return render_template('index.html', logged_in=is_logged_in)
 
 
@@ -105,7 +105,6 @@ def get_guest_user_info():
         session['last_name'] = user_data.last_name
         session['email'] = user_data.email
         session['phone_number'] = user_data.phone_number
-        session['user_type_id'] = user_data.user_type_id
     return jsonify('User saved to session correctly'), 201
 
 
@@ -116,7 +115,7 @@ def reservation_page():
 
 @app.route('/api/reservation', methods=['POST'])
 def make_reservation():
-    if not 'user_id' in session or 'email' not in session:
+    if not 'user_id' in session and not 'email' in session:
         return jsonify({'error': 'Brak użytkownika w sesji'}), 403
     
     data = request.json
@@ -139,7 +138,7 @@ def make_reservation():
         session['start_time'] = new_reservation.start_time
         session['end_time'] = new_reservation.end_time
         session['number_of_people'] = new_reservation.number_of_people
-        session['available_tables']
+        session['available_tables'] = available_tables
         return jsonify('Displaying available tables'), 200
 
 @app.route('/api/get_table', methods=['POST'])
