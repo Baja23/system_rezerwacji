@@ -285,13 +285,21 @@ def check_for_available_tables(date: str, start_time: str, end_time: str, number
         cursor.execute(taken_tables_search, (date, end_time, start_time))
         taken_rows = cursor.fetchall()
         taken_tables = {row['restaurantTableId'] for row in taken_rows}
-        # finding available tables
-        available_tables = set(sufficient_capacity_tables.keys()) - taken_tables
-        if not available_tables:
+        available_ids = set(sufficient_capacity_tables.keys()) - taken_tables
+
+        if not available_ids:
             print("No available tables found for the specified date and time.")
-            return []
-        else: 
-            return list(available_tables)
+            return [] # Zwracamy pustą listę, jeśli brak stolików
+
+        available_tables_list = [
+            {
+                'id': table_id, 
+                'name': sufficient_capacity_tables[table_id] # Pobieramy nazwę/szczegóły po ID
+            }
+            for table_id in available_ids
+        ]
+
+        return available_tables_list
     
 #add reservation, returns reservation id
 def create_reservation(selected_table: int, date: str, start_time: str, end_time: str, number_of_people: int, user_id: int) -> int:

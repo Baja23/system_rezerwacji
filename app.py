@@ -148,8 +148,7 @@ def make_reservation():
         session['start_time'] = new_reservation.start_time
         session['end_time'] = new_reservation.end_time
         session['number_of_people'] = new_reservation.number_of_people
-        session['available_tables'] = available_tables
-        return jsonify('Displaying available tables'), 200
+        return jsonify({'available_tables': available_tables}), 200
 
 @app.route('/api/get_table', methods=['POST'])
 def get_table_save_reservation():
