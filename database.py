@@ -267,7 +267,7 @@ def check_for_available_tables(date: str, start_time: str, end_time: str, number
         cursor = conn.cursor()
         # searching for a table with sufficient capacity
         capacity_search = '''
-            SELECT id, name FROM RestaurantTable
+            SELECT name, id  FROM RestaurantTable
             WHERE capacity >= ?
         '''
         cursor.execute(capacity_search, (number_of_people,))
