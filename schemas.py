@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator, ValidationError
 import string
 import re
-from datetime import datetime, timedelta
+import datetime
 
 
 class UserRegistrationModel(BaseModel):
