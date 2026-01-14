@@ -194,10 +194,6 @@ def modify_reservation(reservation_id):
     try:
         reservation_data = {key: data[key] for key in data_needed}
         reservation = ReservationModel(**reservation_data)
-        reservation.validate_date(reservation.date)
-        reservation.validate_time(reservation.start_time)
-        reservation.validate_time(reservation.end_time)
-        reservation.validate_end_time(reservation.end_time)
     except ValidationError as e:
         messages = "; ".join([err['msg'] for err in e.errors()])
         return jsonify({'error': messages}), 400
@@ -262,7 +258,7 @@ def new_reservations():
 
 
 @app.route('/api/reservations/<int:reservation_id>/status', methods=['PUT'])
-def modify_reservation_status(reservation_id: int, new_status: str):
+def modify_reservation_status(reservation_id: int):
     data = request.json
     new_status = data.get('status')
     if new_status not in ['Accepted', 'Cancelled']:
