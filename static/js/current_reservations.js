@@ -127,16 +127,20 @@ document.getElementById("close-modal")?.addEventListener("click", () => {
 
 
 // SAVE EDIT
+function isoToDDMMYYYY(iso) {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
 
 document.getElementById("edit-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const id = document.getElementById("edit-id").value;
     const payload = {
-        date: document.getElementById("edit-date").value,
-        startTime: document.getElementById("edit-time-start").value,
-        endTime: document.getElementById("edit-time-end").value,
-        numberOfPeople: document.getElementById("edit-people").value
+        date: isoToDDMMYYYY(document.getElementById("edit-date").value),
+        start_time: document.getElementById("edit-time-start").value,
+        end_time: document.getElementById("edit-time-end").value,
+        number_of_people: document.getElementById("edit-people").value
     };
 
     const res = await fetch(`/api/reservations/${id}`, {
