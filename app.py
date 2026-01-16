@@ -4,6 +4,8 @@ from werkzeug.security import check_password_hash
 from schemas import UserRegistrationModel, ValidationError, ReservationModel, UserInfo
 from classes import User, Reservation
 from datetime import timedelta
+import threading
+from email_notifications import send_reservation_email
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -168,7 +170,15 @@ def get_table_save_reservation():
     new_reservation = Reservation(session['date'], session['start_time'], session['end_time'], session['number_of_people'], user_id)
     reservation_id = new_reservation.add_reservation(table_id)
     if reservation_id:
-        # wyslij_email(...)
+        email_context = {
+        'email': session.get('email'),
+        'first_name': session.get('first_name'),
+        'last_name': session.get('last_name'),
+        'date': session.get('date'),
+        'start_time': session.get('start_time')
+    }
+        email_thread = threading.Thread(target=send_reservation_email, args=(email_context,))
+        email_thread.start()
         return jsonify({
             'message': 'Reservation created successfully', 
             'reservation_id': reservation_id,
