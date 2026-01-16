@@ -64,11 +64,11 @@ function renderTables(tables) {
     return;
   }
 
-  for (const id of tables) {
+  for (const table of tables) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>Stolik</td><td>${id}</td>`;
+    tr.innerHTML = `<td>${table.name ?? "Stolik"}</td><td>${table.id}</td>`;
     tr.addEventListener("click", () => {
-      document.getElementById("tableID").value = id;
+      document.getElementById("tableID").value = table.id;
     });
     tbody.appendChild(tr);
   }

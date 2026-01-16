@@ -95,6 +95,28 @@ class UserInfo(BaseModel):
         return value
 
 
+class UserInfo(BaseModel):
+    first_name: str = Field(...)
+    last_name: str = Field(...)
+    email: EmailStr = Field(...)
+    phone_number: str = Field(...)
+    user_type_id: int = Field(...)
+
+    @field_validator('first_name', 'last_name')
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if not re.match(r'^[A-Za-z]+$', value):
+            raise ValueError('Name must contain only letters')
+        return value
+
+    @field_validator('phone_number')
+    @classmethod
+    def validate_phone_number(cls, value: str) -> str:
+        if not re.match(r'^\d{9}$', value):
+            raise ValueError('Phone number must be exactly 9 digits')
+        return value
+
+
 class ReservationModel(BaseModel):
     date: str = Field(...)
     start_time: str = Field(...)
