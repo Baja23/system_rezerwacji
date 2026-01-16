@@ -200,12 +200,20 @@ def modify_reservation(reservation_id):
     except KeyError as e:
         return jsonify({'error': f'Missing field: {str(e)}'}), 400
     new_reservation = reservation.model_dump()
-    old_reservation = Reservation(db.get_reservation_by_id(reservation_id))
-    modification_confirmation = old_reservation.modify_reservation({key: new_reservation[key] for key in data_needed}, reservation_id)
+    old_resv_dict = dict(db.get_reservation_by_id(reservation_id))
+    old_resv_dict['reservation_id'] = old_resv_dict.pop('id')
+    old_resv_dict['start_time'] = old_resv_dict.pop('startTime')
+    old_resv_dict['end_time'] = old_resv_dict.pop('endTime')
+    old_resv_dict['number_of_people'] = old_resv_dict.pop('numberOfPeople')
+    old_resv_dict['user_id'] = old_resv_dict.pop('userId')
+    old_resv_dict.pop('status')
+    old_resv_dict.pop('restaurantTableId')
+    old_reservation = Reservation(**old_resv_dict)
+    modification_confirmation = old_reservation.modify_reservation({key: new_reservation[key] for key in data_needed})
     if modification_confirmation:
-        return jsonify({'Reservation modified successfully.'}), 200
+        return jsonify({'message': 'Reservation modified successfully.'}), 200
     else:
-        return jsonify({'Reservation not found'}), 404
+        return jsonify({'message': 'Reservation not found'}), 404
 
 @app.route('/api/delete_reservation')
 

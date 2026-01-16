@@ -364,7 +364,7 @@ def get_reservation_by_id(reservation_id: int) -> dict:
         query = '''
             SELECT * FROM Reservation WHERE id = ?;
         '''
-        cursor.execute(query, (reservation_id))
+        cursor.execute(query, (reservation_id, ))
         selected_reservation = cursor.fetchone()
     return selected_reservation
 
