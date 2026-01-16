@@ -74,6 +74,7 @@ def login():
         session['user_id'] = logged_user.id
         session['user_name'] = logged_user.user_name
         session['user_type_id'] = logged_user.user_type_id
+        session['email'] = logged_user.email
         target_url = '/user_account'
         session.permanent = True
         if session['user_type_id'] == 3:
