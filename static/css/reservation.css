@@ -13,7 +13,7 @@
     max-width: 350px;
     display: flex;
     flex-direction: column;
-    gap: 35px;
+    gap: 15px;
     justify-content: center;
     margin: 0 auto;
 }
@@ -93,7 +93,7 @@ a {
 
 .reservation-button {
     display: block;
-    margin: 70px auto 0 auto;
+    margin: 0 auto 40px auto;
     font-family: "PlayfairDisplay";
     width: 100%;
     max-width: 400px;
@@ -108,7 +108,7 @@ a {
 
 .tableID-button {
     display: block;
-    margin: 70px auto 0 auto;
+    margin: 20px auto 0 auto;
     font-family: "PlayfairDisplay";
     width: 100%;
     max-width: 300px;
