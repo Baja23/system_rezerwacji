@@ -115,6 +115,7 @@ def get_guest_user_info():
         session['last_name'] = user_data.last_name
         session['email'] = user_data.email
         session['phone_number'] = user_data.phone_number
+        session['user_type_id'] = user_data.user_type_id
     return jsonify('User saved to session correctly'), 201
 
 
@@ -156,10 +157,11 @@ def get_table_save_reservation():
     table_id = data['id']
     if not table_id:
         available_tables = session['available_tables']
-        table_id = list(available_tables)[0]
-    if session['user_id']:
+        table_id = list(available_tables)[0] 
+    session['table_id'] = table_id
+    if 'user_id' in session:
         user_id = session['user_id']
-    elif session['email']:
+    elif 'email' in session:
         guest_user = User(session['first_name'], session['last_name'], session['email'], session['phone_number'], session['user_type_id'])
         user_id = guest_user.save_guest_info()
     
@@ -220,6 +222,18 @@ def modify_reservation(reservation_id):
 @app.route('/reservation_sent') 
 def reservation_sent_page():
     return render_template("reservation_accepted.html")
+
+@app.route('/api/reservation_sent', methods=['POST'])
+def reservation_sent():
+    reservation_info = {
+        'first_name': session.get('first_name'),
+        'last_name': session.get('last_name'),
+        'date': session.get('date'),
+        'start_time': session.get('start_time'),
+        'end_time': session.get('end_time'),
+        'table_id': session.get('table_id')
+    }
+    return jsonify(reservation_info), 200
 
 @app.route('/reservation_fail')
 def reservation_fail_page():
