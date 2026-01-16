@@ -1,55 +1,36 @@
-(() => {
-  const form = document.getElementById('register_form');
-  if (!form) return; // ten plik nie jest dla tej strony
+document.addEventListener("DOMContentLoaded", async () => {
+  const nameEl = document.getElementById("full_name");
+  const dateEl = document.getElementById("reservation_date");
+  const startEl = document.getElementById("start_time");
+  const endEl = document.getElementById("end_time");
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  if (!nameEl || !dateEl || !startEl || !endEl) return;
 
-    try {
-      const fd = new FormData(form);
+  try {
+    const res = await fetch("/api/reservation_sent", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" }
+    });
 
-      // 1) gość
-      const guest = {
-        first_name: fd.get('first_name'),
-        last_name: fd.get('last_name'),
-        email: fd.get('email'),
-        phone_number: fd.get('phone_number'),
-        user_type_id: 1, // jeśli backend tego wymaga
-      };
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Nie udało się pobrać danych rezerwacji");
 
-      const r1 = await fetch('/api/guest_reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(guest),
-      });
+    const fullName = `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim();
 
-      const j1 = await r1.json().catch(() => ({}));
-      if (!r1.ok) throw new Error(j1.error || 'Błąd danych gościa');
+    nameEl.textContent = fullName || "-";
+    dateEl.textContent = data.date || "-";
+    startEl.textContent = data.start_time || "-";
+    endEl.textContent = data.end_time || "-";
 
-      // 2) rezerwacja
-      const reservation = {
-        date: fd.get('date'),
-        start_time: fd.get('start_time'),
-        end_time: fd.get('end_time'),
-        number_of_people: Number(fd.get('number_of_people')),
-      };
+    // jeśli chcesz też stolik, dodaj w HTML: <span id="ra-table"></span>
+    const tableEl = document.getElementById("ra-table");
+    if (tableEl) tableEl.textContent = data.table_id ?? "-";
 
-      const r2 = await fetch('/api/reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(reservation),
-      });
-
-      const j2 = await r2.json().catch(() => ({}));
-      if (!r2.ok) throw new Error(j2.error || 'Błąd rezerwacji');
-
-      // 3) dopiero teraz redirect
-      window.location.assign('/reservation_sent');
-
-    } catch (err) {
-      alert(err.message || String(err));
-    }
-  });
-})();
+  } catch (err) {
+    console.error(err);
+    // opcjonalnie pokaż błąd na stronie:
+    const pre = document.querySelector("pre");
+    if (pre) pre.textContent = err.message || String(err);
+  }
+});
