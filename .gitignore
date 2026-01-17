@@ -16,6 +16,7 @@ database_comp.py
 database_copy.py
 dbcheck.py
 debug_auth.js
+.env
 guest_reservation(copy).html
 guest_reservation(old, personal_data).js
 new_reservations(copy).js
@@ -31,4 +32,5 @@ temporary.py
 testing.py
 venv
 venv/
+__pycache__
 >>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
