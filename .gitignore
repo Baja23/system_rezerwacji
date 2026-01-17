@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 pycache
 pycache/
 app (nowe).py
@@ -8,13 +9,13 @@ appcomparable.py
 classes_check.py
 classes_comp.py
 comparison.py
-__pycache__
 dane.json
 dane2.json
 database.py
 database_comp.py
 database_copy.py
 dbcheck.py
+debug_auth.js
 .env
 guest_reservation(copy).html
 guest_reservation(old, personal_data).js
@@ -31,10 +32,5 @@ temporary.py
 testing.py
 venv
 venv/
-__pycache__/
-venv/
-dane.json
-dane2.json
-additional_sql_scripts.ipnyb
-raport_bledow.txt
-comparison.py
+__pycache__
+>>>>>>> c63059f1cb96ac6f4a238a8c5a744794ffb290fb
